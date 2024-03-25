@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ParehNegar.Database\ParehNegar.Database.csproj" />
+    <ProjectReference Include="..\ParehNegar.Domain\ParehNegar.Domain.csproj" />
+  </ItemGroup>
+
+</Project>
