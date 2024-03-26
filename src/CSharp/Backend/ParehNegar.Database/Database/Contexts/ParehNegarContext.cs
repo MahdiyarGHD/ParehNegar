@@ -7,13 +7,23 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Database.Database.Contexts
 {
-    public sealed class AppTaxContext : DbContext
+    public sealed class ParehNegarContext : DbContext
     {
-        public AppTaxContext(DbContextOptions builder) : base(builder)
+        private DatabaseBuilder _builder;
+        public ParehNegarContext(DatabaseBuilder builder) 
         {
+            _builder = builder;
         }
 
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            if (_builder != null)
+            {
+                _builder.OnConfiguring(optionsBuilder);
+            }
 
+            base.OnConfiguring(optionsBuilder);
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
