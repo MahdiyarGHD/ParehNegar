@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Database.Database.Contexts;
+using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,18 +10,18 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Logics.DatabaseLogics;
 
-public class ExtendedDbContext<TEntity> : DbContext where TEntity : class
+public class Logic<TEntity> : DbContext where TEntity : class
 {
     private readonly GenericQueryBuilder<TEntity> _queryBuilder;
-
-    public ExtendedDbContext(DbContextOptions<ExtendedDbContext<TEntity>> options) : base(options)
+    public Logic()
+        : base()
     {
         _queryBuilder = new GenericQueryBuilder<TEntity>(this);
     }
 
+
     public DbSet<TEntity> Entities { get; set; }
 
-    // Delegate methods to the query builder
     public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null)
     {
         return await _queryBuilder.GetAllAsync(filter);

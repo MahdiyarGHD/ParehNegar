@@ -1,6 +1,7 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using Microsoft.EntityFrameworkCore;
 using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 namespace ParehNegar.Logics.DatabaseLogics;
 
 public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
+        : IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
     where TEntity : class
 {
     private readonly GenericQueryBuilder<TEntity> _queryBuilder;

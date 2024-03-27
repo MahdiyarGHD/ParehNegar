@@ -1,6 +1,11 @@
 ﻿using Azure.Messaging;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
+using ParehNegar.Database.Database.Entities;
+using ParehNegar.Domain.Contracts;
+using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Interfaces;
+using ParehNegar.Logics.Logics;
 using System.Net.Security;
 
 namespace ParehNegar.WebApi.Controllers
@@ -9,15 +14,27 @@ namespace ParehNegar.WebApi.Controllers
     [ApiController]
     public class HomeController : ControllerBase
     {
-        public HomeController()
+        private readonly IUnitOfWork _unitOfWork;
+
+        public HomeController(IUnitOfWork unitOfWork)
         {
-            خوشتیپ();
+            _unitOfWork = unitOfWork;
         }
 
         [HttpGet]
-        public MessageContract<dynamic> خوشتیپ()
+        public async Task<MessageContract> Add()
         {
-            return new { Hello = "there" };
+            var logic = _unitOfWork.GetContractLogic<long, PersonEntity, PersonContract, PersonContract, PersonContract>();
+            await logic.AddAsync(new PersonContract { Name = "Mahdiyar", LastName = "Ghannad" });
+            return true;
+        }
+
+        [HttpGet]
+        public async Task<ListMessageContract<PersonContract>> GetAll()
+        {
+            var logic = _unitOfWork.GetContractLogic<long, PersonEntity, PersonContract, PersonContract, PersonContract>();
+            var result = await logic.GetAllAsync();
+            return result.ToList();
         }
     }
 }

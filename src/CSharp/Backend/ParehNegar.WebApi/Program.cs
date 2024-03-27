@@ -1,5 +1,8 @@
-using EasyMicroservices.Mapper.AutoMapper.Providers;
 using EasyMicroservices.Mapper.Interfaces;
+using EasyMicroservices.Mapper.SerializerMapper.Providers;
+using EasyMicroservices.Serialization.Interfaces;
+using EasyMicroservices.Serialization.Providers;
+using EasyMicroservices.Serialization.System.Text.Json.Providers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -7,6 +10,11 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParehNegar.Database;
 using ParehNegar.Database.Database.Contexts;
+using ParehNegar.Database.Database.Entities;
+using ParehNegar.Domain.Contracts;
+using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Interfaces;
+using ParehNegar.Logics.Logics;
 using ParehNegar.WebApi.Middlewares;
 using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
@@ -67,6 +75,7 @@ namespace AppTax.WebApi
         static WebApplicationBuilder CreateBuilder(string[] args)
         {
             var app = WebApplication.CreateBuilder(args);
+            IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
 
             app.Services.AddControllers();
             app.Services.AddEndpointsApiExplorer();
@@ -94,7 +103,7 @@ namespace AppTax.WebApi
                             In = ParameterLocation.Header
                         },
                         new List<string>()
-                    } 
+                    }
                 });
                 options.MapType<decimal>(() => new OpenApiSchema
                 {
@@ -102,14 +111,19 @@ namespace AppTax.WebApi
                     Format = "decimal"
                 });
             });
-            app.Services.AddHttpContextAccessor();
-            app.Services.AddTransient((Func<IServiceProvider, DbContext>)((IServiceProvider serviceProvider) => serviceProvider.GetService<ParehNegarContext>()));
             app.Services.AddExceptionHandler(delegate (ExceptionHandlerOptions option)
             {
                 option.ExceptionHandler = AppAuthorizationMiddleware.ExceptionHandler;
             });
-            app.Services.AddTransient(serviceProvider => new ParehNegarContext(serviceProvider.GetService<DatabaseBuilder>()));
-            app.Services.AddScoped<IMapperProvider, AutoMapperProvider>();
+            app.Services.AddHttpContextAccessor();
+            app.Services.AddTransient(sp => configuration);
+            app.Services.AddTransient(sp => new DatabaseBuilder(sp.GetService<IConfiguration>()));
+            app.Services.AddTransient<DbContext>(sp => new ParehNegarContext(sp.GetService<DatabaseBuilder>()));
+
+            app.Services.AddScoped<ITextSerializationProvider, SystemTextJsonProvider>();
+            app.Services.AddScoped<IMapperProvider, SerializerMapperProvider>();
+
+            app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));
 
             return app;
         }

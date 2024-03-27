@@ -7,10 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Folder Include="Contracts\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <PackageReference Include="EasyMicroservices.ServiceContracts" Version="0.0.0.21" />
   </ItemGroup>
 
