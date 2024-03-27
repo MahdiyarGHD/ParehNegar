@@ -1,14 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <TargetFramework>net8.0</TargetFramework>
-    <ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
-  </PropertyGroup>
-	
-  <ItemGroup>
-    <ProjectReference Include="..\ParehNegar.Database\ParehNegar.Database.csproj" />
-    <ProjectReference Include="..\ParehNegar.Domain\ParehNegar.Domain.csproj" />
-  </ItemGroup>
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
 
+	<ItemGroup>
+		<ProjectReference Include="..\ParehNegar.Database\ParehNegar.Database.csproj" />
+		<ProjectReference Include="..\ParehNegar.Domain\ParehNegar.Domain.csproj" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="EasyMicroservices.Mapper" Version="0.0.0.7" />
+		<PackageReference Include="EasyMicroservices.Mapper.AutoMapper" Version="0.0.0.7" />
+	</ItemGroup>
 </Project>

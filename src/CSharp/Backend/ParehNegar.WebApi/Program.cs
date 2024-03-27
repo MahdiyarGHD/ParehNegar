@@ -1,3 +1,5 @@
+using EasyMicroservices.Mapper.AutoMapper.Providers;
+using EasyMicroservices.Mapper.Interfaces;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Cors.Infrastructure;
 using Microsoft.EntityFrameworkCore;
@@ -57,6 +59,7 @@ namespace AppTax.WebApi
 
             webApplication.UseSwagger();
             webApplication.UseSwaggerUI();
+            webApplication.UseMiddleware<AppAuthorizationMiddleware>();
 
             await webApplication.RunAsync();
         }
@@ -105,8 +108,8 @@ namespace AppTax.WebApi
             {
                 option.ExceptionHandler = AppAuthorizationMiddleware.ExceptionHandler;
             });
-
             app.Services.AddTransient(serviceProvider => new ParehNegarContext(serviceProvider.GetService<DatabaseBuilder>()));
+            app.Services.AddScoped<IMapperProvider, AutoMapperProvider>();
 
             return app;
         }

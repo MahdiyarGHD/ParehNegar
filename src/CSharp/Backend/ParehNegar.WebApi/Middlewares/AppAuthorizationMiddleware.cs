@@ -6,6 +6,7 @@ using System.Text.Json;
 
 namespace ParehNegar.WebApi.Middlewares
 {
+    // [https://github.com/EasyMicroservices/Cores]
     public class AppAuthorizationMiddleware
     {
         private readonly RequestDelegate _next;
