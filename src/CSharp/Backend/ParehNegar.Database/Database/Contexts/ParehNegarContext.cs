@@ -15,14 +15,11 @@ namespace ParehNegar.Database.Contexts
         {
             _builder = builder;
         }
-        public DbSet<PersonEntity> People { get; set; }
+        //public DbSet<PersonEntity> People { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            if (_builder != null)
-            {
-                _builder.OnConfiguring(optionsBuilder);
-            }
+            _builder?.OnConfiguring(optionsBuilder);
 
             base.OnConfiguring(optionsBuilder);
         }

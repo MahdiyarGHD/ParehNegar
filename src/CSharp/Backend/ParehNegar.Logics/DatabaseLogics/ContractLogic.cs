@@ -1,4 +1,5 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
+using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
@@ -24,53 +25,57 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         _mapper = mapper;
     }
 
-    public async Task<IEnumerable<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
+    public async Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
     {
         var entities = await _queryBuilder.GetAllAsync(filter);
         return MapToResponseContracts(entities);
     }
 
-    public async Task<TResponseContract> GetByAsync(Expression<Func<TEntity, bool>> filter)
+    public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter)
     {
         var entity = await _queryBuilder.GetByAsync(filter);
         return MapToResponseContract(entity);
     }
 
-    public async Task<TResponseContract> GetByIdAsync(TId id)
+    public async Task<MessageContract<TResponseContract>> GetByIdAsync(TId id)
     {
         var entity = await _queryBuilder.GetByIdAsync(id);
+        if (entity is null)
+            return (FailedReasonType.NotFound, "Item by predicate not found!");
         return MapToResponseContract(entity);
     }
 
-    public async Task<TResponseContract> AddAsync(TCreateRequestContract createRequest)
+    public async Task<MessageContract<TResponseContract>> AddAsync(TCreateRequestContract createRequest)
     {
         var entity = MapToEntity(createRequest);
         entity = await _queryBuilder.AddAsync(entity);
         return MapToResponseContract(entity);
     }
 
-    public async Task AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests)
+    public async Task<MessageContract> AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests)
     {
         var entities = createRequests.Select(MapToEntity);
         await _queryBuilder.AddBulkAsync(entities);
+        return true;
     }
 
-    public async Task<TResponseContract> UpdateAsync(TUpdateRequestContract updateRequest)
+    public async Task<MessageContract<TResponseContract>> UpdateAsync(TUpdateRequestContract updateRequest)
     {
         var entity = MapToEntity(updateRequest);
         return MapToResponseContract(await _queryBuilder.UpdateAsync(entity));
     }
 
-    public async Task<TResponseContract> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest)
+    public async Task<MessageContract<TResponseContract>> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest)
     {
         var entity = MapToEntity(updateRequest);
         return MapToResponseContract(await _queryBuilder.UpdateChangedValuesOnlyAsync(entity));
     }
 
-    public async Task UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests)
+    public async Task<MessageContract> UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests)
     {
         var entities = updateRequests.Select(MapToEntity);
         await _queryBuilder.UpdateBulkAsync(entities);
+        return true;
     }
 
     private TEntity MapToEntity(TCreateRequestContract createRequest)
@@ -88,8 +93,8 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         return _mapper.Map<TResponseContract>(entity);
     }
 
-    private IEnumerable<TResponseContract> MapToResponseContracts(IEnumerable<TEntity> entities)
+    private List<TResponseContract> MapToResponseContracts(IEnumerable<TEntity> entities)
     {
-        return entities.Select(MapToResponseContract);
+        return entities.Select(MapToResponseContract).ToList();
     }
 }
