@@ -1,8 +1,6 @@
 ﻿using Azure.Messaging;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
-using ParehNegar.Database.Entities;
-using ParehNegar.Domain.Contracts;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using ParehNegar.Logics.Logics;

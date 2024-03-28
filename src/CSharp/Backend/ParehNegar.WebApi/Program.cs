@@ -10,7 +10,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParehNegar.Database;
 using ParehNegar.Database.Contexts;
-using ParehNegar.Domain.Contracts;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using ParehNegar.Logics.Logics;
@@ -26,8 +25,8 @@ namespace AppTax.WebApi
     {
         public static async Task Main(string[] args)
         {
-            var app = CreateBuilder(args);
             IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
+            var app = CreateBuilder(args, configuration);
 
             string text = app.Configuration["Authorization:HasToUse"];
             if (text.HasValue() && text.Equals("true", StringComparison.OrdinalIgnoreCase))
@@ -71,10 +70,9 @@ namespace AppTax.WebApi
             await webApplication.RunAsync();
         }
 
-        static WebApplicationBuilder CreateBuilder(string[] args)
+        static WebApplicationBuilder CreateBuilder(string[] args, IConfiguration configuration)
         {
             var app = WebApplication.CreateBuilder(args);
-            IConfiguration configuration = new ConfigurationBuilder().AddJsonFile("appsettings.json", optional: true, reloadOnChange: true).Build();
 
             app.Services.AddControllers();
             app.Services.AddEndpointsApiExplorer();

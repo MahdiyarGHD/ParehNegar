@@ -1,6 +1,7 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
+using ParehNegar.Domain.Interfaces;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using System;

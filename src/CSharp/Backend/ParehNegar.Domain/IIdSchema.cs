@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Logics.Interfaces
+namespace ParehNegar.Domain.Interfaces
 {
     public interface IIdSchema<TId> where TId : new()
     {

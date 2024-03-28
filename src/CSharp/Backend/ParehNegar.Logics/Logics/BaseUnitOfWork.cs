@@ -7,6 +7,7 @@ using EasyMicroservices.Serialization.Newtonsoft.Json.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ParehNegar.Domain.Interfaces;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using System;

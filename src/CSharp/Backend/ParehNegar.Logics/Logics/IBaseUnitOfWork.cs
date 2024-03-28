@@ -1,6 +1,7 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.Serialization.Interfaces;
 using Microsoft.Extensions.Configuration;
+using ParehNegar.Domain.Interfaces;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using System;
