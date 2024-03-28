@@ -1,7 +1,7 @@
 ﻿using Azure.Messaging;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.AspNetCore.Mvc;
-using ParehNegar.Database.Database.Entities;
+using ParehNegar.Database.Entities;
 using ParehNegar.Domain.Contracts;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
@@ -35,6 +35,24 @@ namespace ParehNegar.WebApi.Controllers
             var logic = _unitOfWork.GetContractLogic<long, PersonEntity, PersonContract, PersonContract, PersonContract>();
             var result = await logic.GetAllAsync();
             return result.ToList();
+        }
+
+        [HttpGet]
+        public async Task<MessageContract<PersonContract>> Update()
+        {
+            var logic = _unitOfWork.GetContractLogic<long, PersonEntity, PersonContract, PersonContract, PersonContract>();
+
+
+            var result = await logic.UpdateAsync(new PersonContract { Id = 1, LastName = "asfasfasfasfasf" });
+            return result;
+        }
+
+        [HttpGet]
+        public async Task<MessageContract<PersonContract>> UpdateChangedOnly()
+        {
+            var logic = _unitOfWork.GetContractLogic<long, PersonEntity, PersonContract, PersonContract, PersonContract>();
+            var result = await logic.UpdateChangedValuesOnlyAsync(new PersonContract { Id = 1, Name = "Hello there" });
+            return result;
         }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ParehNegar.Database.Database.Entities;
+using ParehNegar.Database.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Database.Database.Contexts
+namespace ParehNegar.Database.Contexts
 {
     public sealed class ParehNegarContext : DbContext
     {

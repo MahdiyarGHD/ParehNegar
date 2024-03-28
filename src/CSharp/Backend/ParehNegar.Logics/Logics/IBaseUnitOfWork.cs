@@ -15,10 +15,11 @@ namespace ParehNegar.Logics.Logics
     {
         public ValueTask DisposeAsync();
         IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-  where TResponseContract : class
-  where TEntity : class;
-        Logic<TEntity> GetLogic<TEntity>()
-          where TEntity : class;
+            where TResponseContract : class
+            where TId : new()
+            where TEntity : class, IIdSchema<TId>;
+        public Logic<TEntity, TId> GetLogic<TEntity, TId>() where TId : new() where TEntity : class, IIdSchema<TId>;
+
         IConfiguration GetConfiguration();
         string GetValue(string key);
         IMapperProvider GetMapper();

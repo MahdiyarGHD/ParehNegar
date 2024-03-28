@@ -13,9 +13,9 @@ namespace ParehNegar.Logics.DatabaseLogics;
 
 public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
         : IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
-    where TEntity : class
+    where TEntity : class, IIdSchema<TId> where TId : new()
 {
-    private readonly GenericQueryBuilder<TEntity> _queryBuilder;
+    private readonly GenericQueryBuilder<TEntity,TId> _queryBuilder;
     private readonly IMapperProvider _mapper;
 
     public ContractLogic(DbContext context, IMapperProvider mapper)
@@ -55,16 +55,16 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         await _queryBuilder.AddBulkAsync(entities);
     }
 
-    public async Task UpdateAsync(TUpdateRequestContract updateRequest)
+    public async Task<TResponseContract> UpdateAsync(TUpdateRequestContract updateRequest)
     {
         var entity = MapToEntity(updateRequest);
-        await _queryBuilder.UpdateAsync(entity);
+        return MapToResponseContract(await _queryBuilder.UpdateAsync(entity));
     }
 
-    public async Task UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest)
+    public async Task<TResponseContract> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest)
     {
         var entity = MapToEntity(updateRequest);
-        await _queryBuilder.UpdateChangedValuesOnlyAsync(entity);
+        return MapToResponseContract(await _queryBuilder.UpdateChangedValuesOnlyAsync(entity));
     }
 
     public async Task UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests)

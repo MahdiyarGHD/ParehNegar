@@ -1,6 +1,8 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
@@ -8,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Logics.DatabaseLogics
 {
-    public class GenericQueryBuilder<TEntity> where TEntity : class
+    public class GenericQueryBuilder<TEntity, TId> where TEntity : class, IIdSchema<TId> where TId : new()
     {
         private readonly DbContext _context;
 
@@ -22,9 +24,7 @@ namespace ParehNegar.Logics.DatabaseLogics
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
             if (filter != null)
-            {
                 query = query.Where(filter);
-            }
 
             return await query.ToListAsync();
         }
@@ -52,26 +52,56 @@ namespace ParehNegar.Logics.DatabaseLogics
             await _context.SaveChangesAsync();
         }
 
-        public async Task UpdateAsync(TEntity entity)
+        //public async Task UpdateAsync(TEntity entity)
+        //{
+        //    _context.Entry(entity).State = EntityState.Modified;
+        //    await _context.SaveChangesAsync();
+        //}
+
+        //public async Task UpdateChangedValuesOnlyAsync(TEntity entity)
+        //{
+        //    _context.Set<TEntity>().Add(entity);
+
+        //    var entry = _context.Entry(entity);
+        //    foreach (var propertyName in entry.OriginalValues.Properties)
+        //    {
+        //        if (!EqualityComparer<object>.Default.Equals(entry.OriginalValues[propertyName], entry.CurrentValues[propertyName]))
+        //        {
+        //            entry.Property(propertyName).IsModified = true;
+        //        }
+        //    }
+
+        //    await _context.SaveChangesAsync();
+        //}
+
+        public async Task<TEntity> UpdateAsync(TEntity entity)
         {
             _context.Entry(entity).State = EntityState.Modified;
             await _context.SaveChangesAsync();
+            return entity;
         }
 
-        public async Task UpdateChangedValuesOnlyAsync(TEntity entity)
+        public async Task<TEntity> UpdateChangedValuesOnlyAsync(TEntity newEntity)
         {
-            _context.Set<TEntity>().Add(entity);
+            TEntity existingEntity = await GetByIdAsync(newEntity.Id) ?? throw new KeyNotFoundException("Entity not found");
+            var updatedEntity = existingEntity;
+            var properties = typeof(TEntity).GetProperties();
 
-            var entry = _context.Entry(entity);
-            foreach (var propertyName in entry.OriginalValues.Properties)
+            foreach (var property in properties)
             {
-                if (!EqualityComparer<object>.Default.Equals(entry.OriginalValues[propertyName], entry.CurrentValues[propertyName]))
+                if (property.CanWrite)
                 {
-                    entry.Property(propertyName).IsModified = true;
+                    var newValue = property.GetValue(newEntity);
+                    if(newValue == null)
+                        property.SetValue(updatedEntity, property.GetValue(existingEntity));
+                    else if (!Equals(property.GetValue(existingEntity), newValue))
+                        property.SetValue(updatedEntity, newValue);
                 }
             }
 
-            await _context.SaveChangesAsync();
+            await UpdateAsync(updatedEntity);
+
+            return updatedEntity;
         }
 
         public async Task UpdateBulkAsync(IEnumerable<TEntity> entities)

@@ -13,6 +13,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
+using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -72,32 +73,37 @@ namespace ParehNegar.Logics.Logics
         }
 
         public virtual IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-    where TResponseContract : class
-    where TEntity : class
+            where TResponseContract : class
+            where TId : new()
+            where TEntity : class, IIdSchema<TId>
         {
             return GetInternalContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>();
         }
 
         IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-  where TResponseContract : class
-  where TEntity : class
+            where TResponseContract : class
+            where TId : new()
+
+            where TEntity : class, IIdSchema<TId>
         {
             return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
         }
 
-        public virtual Logic<TEntity> GetLogic<TEntity>()
-    where TEntity : class
+        public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()
+            where TId : new()
+            where TEntity : class, IIdSchema<TId>
         {
-            return GetInternaltLogic<TEntity>();
+            return GetInternaltLogic<TEntity, TId>();
         }
 
-        Logic<TEntity> GetInternaltLogic<TEntity>()
-  where TEntity : class
+        Logic<TEntity, TId> GetInternaltLogic<TEntity, TId>()
+            where TId : new()
+            where TEntity : class, IIdSchema<TId>
         {
-            return AddDisposable(new Logic<TEntity>());
+            return AddDisposable(new Logic<TEntity, TId>());
         }
 
-        
+
         public IConfiguration GetConfiguration()
         {
             return ServiceProvider.GetService<IConfiguration>();

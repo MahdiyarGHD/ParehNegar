@@ -15,7 +15,7 @@ public interface IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateReq
     Task<TResponseContract> GetByIdAsync(TId id);
     Task<TResponseContract> AddAsync(TCreateRequestContract createRequest);
     Task AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests);
-    Task UpdateAsync(TUpdateRequestContract updateRequest);
-    Task UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest);
+    Task<TResponseContract> UpdateAsync(TUpdateRequestContract updateRequest);
+    Task<TResponseContract> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest);
     Task UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests);
 }
