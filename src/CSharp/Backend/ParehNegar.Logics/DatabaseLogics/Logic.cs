@@ -49,18 +49,37 @@ public class Logic<TEntity, TId> : DbContext where TEntity : class, IIdSchema<TI
         await _queryBuilder.AddBulkAsync(entities);
     }
 
-    public async Task UpdateAsync(TEntity entity)
+    public async Task<TEntity> UpdateAsync(TEntity entity)
     {
-        await _queryBuilder.UpdateAsync(entity);
+        return await _queryBuilder.UpdateAsync(entity);
     }
 
-    public async Task UpdateChangedValuesOnlyAsync(TEntity entity)
+    public async Task<TEntity> UpdateChangedValuesOnlyAsync(TEntity entity)
     {
-        await _queryBuilder.UpdateChangedValuesOnlyAsync(entity);
+        return await _queryBuilder.UpdateChangedValuesOnlyAsync(entity);
     }
 
     public async Task UpdateBulkAsync(IEnumerable<TEntity> entities)
     {
         await _queryBuilder.UpdateBulkAsync(entities);
+    }
+
+    public async Task<TEntity> HardDeleteByIdAsync(TId id)
+    {
+        return await _queryBuilder.HardDeleteByIdAsync(id);
+    }
+    public async Task<TEntity> SoftDeleteByIdAsync(TId id)
+    {
+        return await _queryBuilder.SoftDeleteByIdAsync(id);
+    }
+
+    public async Task<int> BulkHardDeleteByIdAsync(IEnumerable<TId> ids)
+    {
+        return await _queryBuilder.BulkHardDeleteByIdAsync(ids);
+    }
+
+    public async Task<int> BulkSoftDeleteByIdAsync(IEnumerable<TId> ids)
+    {
+        return await _queryBuilder.BulkSoftDeleteByIdAsync(ids);
     }
 }

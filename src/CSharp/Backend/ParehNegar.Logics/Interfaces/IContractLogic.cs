@@ -18,5 +18,9 @@ public interface IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateReq
     Task<MessageContract> AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests);
     Task<MessageContract<TResponseContract>> UpdateAsync(TUpdateRequestContract updateRequest);
     Task<MessageContract<TResponseContract>> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest);
+    public Task<MessageContract<TResponseContract>> HardDeleteByIdAsync(TId id);
+    public Task<MessageContract<TResponseContract>> SoftDeleteByIdAsync(TId id);
+    public Task<MessageContract<int>> BulkHardDeleteByIdAsync(IEnumerable<TId> ids);
+    public Task<MessageContract<int>> BulkSoftDeleteByIdAsync(IEnumerable<TId> ids);
     Task<MessageContract> UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests);
 }

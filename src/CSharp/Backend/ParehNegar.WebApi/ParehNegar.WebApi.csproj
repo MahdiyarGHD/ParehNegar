@@ -19,4 +19,8 @@
 		<ProjectReference Include="..\ParehNegar.StartUp\ParehNegar.StartUp.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Folder Include="Controllers\Contents\" />
+	</ItemGroup>
+
 </Project>

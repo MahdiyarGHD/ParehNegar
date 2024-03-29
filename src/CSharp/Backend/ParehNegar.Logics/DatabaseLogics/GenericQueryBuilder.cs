@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Domain;
 using ParehNegar.Domain.Interfaces;
 using ParehNegar.Logics.Interfaces;
 using System;
@@ -42,6 +43,18 @@ namespace ParehNegar.Logics.DatabaseLogics
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
+            if (entity is IDateTimeSchema dateTimeSchema)
+            {
+                dateTimeSchema.CreationDateTime = DateTime.Now;
+                dateTimeSchema.ModificationDateTime = null;
+            }
+
+            if (entity is ISoftDeleteSchema softDeleteSchema)
+            {
+                softDeleteSchema.IsDeleted = false;
+                softDeleteSchema.DeletedDateTime = null;
+            }
+
             _context.Set<TEntity>().Add(entity);
             await _context.SaveChangesAsync();
             return entity;
@@ -53,31 +66,23 @@ namespace ParehNegar.Logics.DatabaseLogics
             await _context.SaveChangesAsync();
         }
 
-        //public async Task UpdateAsync(TEntity entity)
-        //{
-        //    _context.Entry(entity).State = EntityState.Modified;
-        //    await _context.SaveChangesAsync();
-        //}
-
-        //public async Task UpdateChangedValuesOnlyAsync(TEntity entity)
-        //{
-        //    _context.Set<TEntity>().Add(entity);
-
-        //    var entry = _context.Entry(entity);
-        //    foreach (var propertyName in entry.OriginalValues.Properties)
-        //    {
-        //        if (!EqualityComparer<object>.Default.Equals(entry.OriginalValues[propertyName], entry.CurrentValues[propertyName]))
-        //        {
-        //            entry.Property(propertyName).IsModified = true;
-        //        }
-        //    }
-
-        //    await _context.SaveChangesAsync();
-        //}
-
-        public async Task<TEntity> UpdateAsync(TEntity entity)
+        public async Task<TEntity> UpdateAsync(TEntity entity, bool allowSchemaUpdate = true)
         {
-            _context.Entry(entity).State = EntityState.Modified;
+            var entry = _context.Entry(entity);
+            entry.State = EntityState.Modified;
+
+            if (entity is IDateTimeSchema dateTimeSchema && allowSchemaUpdate)
+                dateTimeSchema.ModificationDateTime = DateTime.Now;
+
+            if (typeof(TEntity).GetProperty("CreationDateTime") is not null)
+                entry.Property("CreationDateTime").IsModified = false;
+            
+            if (typeof(TEntity).GetProperty("IsDeleted") is not null && allowSchemaUpdate)
+                entry.Property("IsDeleted").IsModified = false;
+            
+            if (typeof(TEntity).GetProperty("DeletedDateTime") is not null && allowSchemaUpdate)
+                entry.Property("DeletedDateTime").IsModified = false;
+
             await _context.SaveChangesAsync();
             return entity;
         }
@@ -105,10 +110,84 @@ namespace ParehNegar.Logics.DatabaseLogics
             return updatedEntity;
         }
 
-        public async Task UpdateBulkAsync(IEnumerable<TEntity> entities)
+        public async Task UpdateBulkAsync(IEnumerable<TEntity> entities, bool allowSchemaUpdate = true)
         {
-            _context.Set<TEntity>().UpdateRange(entities);
+            foreach (var entity in entities)
+            {
+                var entry = _context.Entry(entity);
+                entry.State = EntityState.Modified;
+
+                if (entity is IDateTimeSchema dateTimeSchema && allowSchemaUpdate)
+                    dateTimeSchema.ModificationDateTime = DateTime.Now;
+
+                if (typeof(TEntity).GetProperty("CreationDateTime") is not null)
+                    entry.Property("CreationDateTime").IsModified = false;
+
+                if (typeof(TEntity).GetProperty("IsDeleted") is not null && allowSchemaUpdate)
+                    entry.Property("IsDeleted").IsModified = false;
+
+                if (typeof(TEntity).GetProperty("DeletedDateTime") is not null && allowSchemaUpdate)
+                    entry.Property("DeletedDateTime").IsModified = false;
+            }
+
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<TEntity> SoftDeleteByIdAsync(TId id)
+        {
+            TEntity entity = await GetByIdAsync(id);
+            if (entity == null)
+                return null;
+
+            if (entity is ISoftDeleteSchema softDeleteSchema)
+            {
+                softDeleteSchema.IsDeleted = true;
+                softDeleteSchema.DeletedDateTime = DateTime.Now;
+                await UpdateAsync(entity, false);
+                return entity;
+            }
+            else
+            {
+                throw new InvalidOperationException("Soft delete is not supported for this entity type.");
+            }
+        }
+
+        public async Task<TEntity> HardDeleteByIdAsync(TId id)
+        {
+            TEntity entity = await GetByIdAsync(id);
+            if (entity == null)
+                return null;
+
+            _context.Set<TEntity>().Remove(entity);
+            await _context.SaveChangesAsync();
+            return entity;
+        }
+
+        public async Task<int> BulkSoftDeleteByIdAsync(IEnumerable<TId> ids)
+        {
+            var entities = await _context.Set<TEntity>().Where(e => ids.Contains(e.Id)).ToListAsync();
+            int deletedCount = 0;
+
+            foreach (var entity in entities)
+            {
+                if (entity is ISoftDeleteSchema softDeleteSchema)
+                {
+                    softDeleteSchema.IsDeleted = true;
+                    softDeleteSchema.DeletedDateTime = DateTime.Now;
+                    deletedCount++;
+                }
+            }
+
+            await UpdateBulkAsync(entities, false);
+            return deletedCount;
+        }
+
+        public async Task<int> BulkHardDeleteByIdAsync(IEnumerable<TId> ids)
+        {
+            var entities = await _context.Set<TEntity>().Where(e => ids.Contains(e.Id)).ToListAsync();
+            _context.Set<TEntity>().RemoveRange(entities);
+            int deletedCount = await _context.SaveChangesAsync();
+            return deletedCount;
         }
     }
 

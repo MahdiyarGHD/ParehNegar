@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Database.Database.Entities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,7 +15,7 @@ namespace ParehNegar.Database.Contexts
         {
             _builder = builder;
         }
-        //public DbSet<PersonEntity> People { get; set; }
+        public DbSet<PersonEntity> People { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
