@@ -1,6 +1,7 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
+using ParehNegar.Domain;
 using ParehNegar.Domain.Interfaces;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
@@ -28,7 +29,10 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     public async Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
     {
-        var entities = await _queryBuilder.GetAllAsync(filter);
+        IEnumerable<TEntity> entities;
+
+        entities = await _queryBuilder.GetAllAsync(filter);
+
         return MapToResponseContracts(entities);
     }
 

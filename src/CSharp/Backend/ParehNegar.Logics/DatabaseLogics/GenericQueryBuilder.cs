@@ -21,12 +21,20 @@ namespace ParehNegar.Logics.DatabaseLogics
             _context = context;
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null)
+        public async Task<IEnumerable<TEntity>> GetAllAsync(
+            Expression<Func<TEntity, bool>> filter = null,
+            params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
+            if (typeof(TEntity).IsAssignableFrom(typeof(ISoftDeleteSchema)))
+                filter = q => ((ISoftDeleteSchema)q).IsDeleted != true;
+
             if (filter != null)
                 query = query.Where(filter);
+
+            foreach (var expression in expressions)
+                query = expression(query);
 
             return await query.ToListAsync();
         }
