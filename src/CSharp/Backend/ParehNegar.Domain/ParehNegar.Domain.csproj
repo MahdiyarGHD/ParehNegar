@@ -10,8 +10,4 @@
     <PackageReference Include="EasyMicroservices.ServiceContracts" Version="0.0.0.21" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Contracts\" />
-  </ItemGroup>
-
 </Project>

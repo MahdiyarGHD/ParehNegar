@@ -1,5 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ParehNegar.Domain.Interfaces;
+using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;

@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using ParehNegar.Domain;
-using ParehNegar.Domain.Interfaces;
+using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -27,11 +27,11 @@ namespace ParehNegar.Logics.DatabaseLogics
         {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
-            if (typeof(TEntity).IsAssignableFrom(typeof(ISoftDeleteSchema)))
-                filter = q => ((ISoftDeleteSchema)q).IsDeleted != true;
+            if (filter is null)
+                if (Array.Exists(typeof(TEntity).GetInterfaces(), i => i == typeof(ISoftDeleteSchema)))
+                    filter = q => ((ISoftDeleteSchema)q).IsDeleted != true;
 
-            if (filter != null)
-                query = query.Where(filter);
+            query = filter is not null ? query.Where(filter) : query;
 
             foreach (var expression in expressions)
                 query = expression(query);
@@ -84,10 +84,10 @@ namespace ParehNegar.Logics.DatabaseLogics
 
             if (typeof(TEntity).GetProperty("CreationDateTime") is not null)
                 entry.Property("CreationDateTime").IsModified = false;
-            
+
             if (typeof(TEntity).GetProperty("IsDeleted") is not null && allowSchemaUpdate)
                 entry.Property("IsDeleted").IsModified = false;
-            
+
             if (typeof(TEntity).GetProperty("DeletedDateTime") is not null && allowSchemaUpdate)
                 entry.Property("DeletedDateTime").IsModified = false;
 
@@ -106,7 +106,7 @@ namespace ParehNegar.Logics.DatabaseLogics
                 if (property.CanWrite)
                 {
                     var newValue = property.GetValue(newEntity);
-                    if(newValue == null)
+                    if (newValue == null)
                         property.SetValue(updatedEntity, property.GetValue(existingEntity));
                     else if (!Equals(property.GetValue(existingEntity), newValue))
                         property.SetValue(updatedEntity, newValue);

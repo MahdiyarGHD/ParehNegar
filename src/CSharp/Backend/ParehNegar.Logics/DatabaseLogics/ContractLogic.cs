@@ -2,7 +2,7 @@
 using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
 using ParehNegar.Domain;
-using ParehNegar.Domain.Interfaces;
+using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using System;

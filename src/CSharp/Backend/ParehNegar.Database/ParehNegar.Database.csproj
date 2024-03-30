@@ -21,8 +21,4 @@
 	<ItemGroup>
 		<ProjectReference Include="..\ParehNegar.Domain\ParehNegar.Domain.csproj" />
 	</ItemGroup>
-
-	<ItemGroup>
-	  <Folder Include="Database\Entities\" />
-	</ItemGroup>
 </Project>
