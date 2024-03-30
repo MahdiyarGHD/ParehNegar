@@ -7,6 +7,12 @@
 	</PropertyGroup>
 
 	<ItemGroup>
+	  <Compile Remove="Database\Entities - Copy\**" />
+	  <EmbeddedResource Remove="Database\Entities - Copy\**" />
+	  <None Remove="Database\Entities - Copy\**" />
+	</ItemGroup>
+
+	<ItemGroup>
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.InMemory" Version="8.0.3" />
 		<PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.3" />

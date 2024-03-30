@@ -1,4 +1,5 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Database.Database.Entities.Contents;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,10 @@ namespace ParehNegar.Database.Contexts
             _builder = builder;
         }
 
-        //public DbSet<PersonEntity> People { get; set; }
+        // Contents
+        public DbSet<ContentCategoryEntity> ContentCategories { get; set; }
+        public DbSet<ContentEntity> Contents { get; set; }
+        public DbSet<LanguageEntity> Languages { get; set; }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -26,7 +30,47 @@ namespace ParehNegar.Database.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
+            base.OnModelCreating(modelBuilder);
 
+            modelBuilder.Entity<ContentCategoryEntity>(model =>
+            {
+                model.HasKey(x => x.Id);
+                model.Property(x => x.Key).UseCollation("SQL_Latin1_General_CP1_CS_AS");
+            });
+
+            modelBuilder.Entity<ContentEntity>(model =>
+            {
+                model.HasKey(x => x.Id);
+
+                model.HasOne(x => x.Category)
+                .WithMany(x => x.Contents)
+                .HasForeignKey(x => x.CategoryId);
+
+                model.HasOne(x => x.Language)
+                .WithMany(x => x.Contents)
+                .HasForeignKey(x => x.LanguageId);
+            });
+
+            modelBuilder.Entity<LanguageEntity>(model =>
+            {
+                model.HasData(
+                    new LanguageEntity()
+                    {
+                        Id = 1,
+                        Name = "fa-IR",
+                        CreationDateTime = DateTime.Now
+                    },
+                    new LanguageEntity()
+                    {
+                        Id = 2,
+                        Name = "en-US",
+                        CreationDateTime = DateTime.Now
+                    }
+                );
+
+                model.HasKey(x => x.Id);
+                model.HasIndex(x => x.Name).IsUnique();
+            });
         }
     }
 }
