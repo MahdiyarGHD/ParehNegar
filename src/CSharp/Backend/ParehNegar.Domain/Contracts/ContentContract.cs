@@ -7,13 +7,11 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Domain.Contracts
 {
-    public class ContentContract 
+    public class ContentContract : FullAbilityIdSchema<long>
     {
         public string Data { get; set; }
 
-        public long LanguageId { get; set; }
         public LanguageContract Language { get; set; }
-        public long CategoryId { get; set; }
         public ContentCategoryContract Category { get; set; }
     }
 }

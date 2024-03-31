@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Domain.Contracts
 {
-    public class LanguageContract 
+    public class LanguageContract : FullAbilityIdSchema<long>
     {
         public string Name { get; set; }
 

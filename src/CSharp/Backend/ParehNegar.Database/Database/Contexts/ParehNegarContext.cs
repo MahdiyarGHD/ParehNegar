@@ -33,14 +33,6 @@ namespace ParehNegar.Database.Contexts
 
             modelBuilder.Entity<ContentCategoryEntity>(model =>
             {
-                model.HasData(
-                    new ContentCategoryEntity()
-                    {
-                        Id = 1,
-                        Key = "Title",
-                        CreationDateTime = DateTime.Now
-                    }
-                );
                 model.HasKey(x => x.Id);
                 model.HasIndex(x => x.Key).IsUnique();
                 model.Property(x => x.Key).UseCollation("SQL_Latin1_General_CP1_CS_AS");
@@ -48,17 +40,6 @@ namespace ParehNegar.Database.Contexts
 
             modelBuilder.Entity<ContentEntity>(model =>
             {
-                model.HasData(
-                    new ContentEntity()
-                    {
-                        Id = 1,
-                        Data = "Wello Horld",
-                        CategoryId = 1,
-                        LanguageId = 1,
-                        CreationDateTime = DateTime.Now,
-                        IsDeleted = false
-                    }
-                );
                 model.HasKey(x => x.Id);
 
                 model.HasOne(x => x.Category)

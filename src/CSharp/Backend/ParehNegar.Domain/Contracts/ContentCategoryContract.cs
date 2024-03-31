@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Domain.Contracts
 {
-    public class ContentCategoryContract
+    public class ContentCategoryContract : FullAbilityIdSchema<long>
     {
         public string? Key { get; set; }
 
