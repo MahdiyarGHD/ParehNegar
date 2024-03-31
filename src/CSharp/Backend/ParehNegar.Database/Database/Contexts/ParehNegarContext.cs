@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Database.Contexts
 {
-    public class ParehNegarContext : DbContext
+    public sealed class ParehNegarContext : DbContext
     {
         private DatabaseBuilder _builder;
         public ParehNegarContext(DatabaseBuilder builder) 
@@ -30,7 +30,6 @@ namespace ParehNegar.Database.Contexts
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<ContentCategoryEntity>(model =>
             {
@@ -72,6 +71,7 @@ namespace ParehNegar.Database.Contexts
                 model.HasKey(x => x.Id);
                 model.HasIndex(x => x.Name).IsUnique();
             });
+            base.OnModelCreating(modelBuilder);
         }
     }
 }

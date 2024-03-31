@@ -18,6 +18,8 @@ using Swashbuckle.AspNetCore.Swagger;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using System.Net;
 using System.Text;
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace AppTax.WebApi
 {
@@ -45,7 +47,6 @@ namespace AppTax.WebApi
                 });
 
             WebApplication webApplication = app.Build();
-
             webApplication.UseCors(delegate (CorsPolicyBuilder options)
             {
                 List<string> anyCors = configuration.GetSection("Cors:Any")?.Get<List<string>>();
@@ -67,6 +68,12 @@ namespace AppTax.WebApi
             webApplication.UseSwaggerUI();
             webApplication.UseMiddleware<AppAuthorizationMiddleware>();
 
+
+            DbContext context = webApplication.Services.GetService<DbContext>();
+            if (context.Database.IsInMemory())
+                await context.Database.EnsureCreatedAsync();
+
+
             await webApplication.RunAsync();
         }
 
@@ -74,7 +81,8 @@ namespace AppTax.WebApi
         {
             var app = WebApplication.CreateBuilder(args);
 
-            app.Services.AddControllers();
+            app.Services.AddControllers().AddJsonOptions(x =>
+                x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
             app.Services.AddEndpointsApiExplorer();
             app.Services.AddSwaggerGen(delegate (SwaggerGenOptions options)
             {
@@ -117,10 +125,12 @@ namespace AppTax.WebApi
             app.Services.AddTransient(sp => new DatabaseBuilder(sp.GetService<IConfiguration>()));
             app.Services.AddTransient<DbContext>(sp => new ParehNegarContext(sp.GetService<DatabaseBuilder>()));
 
-            app.Services.AddScoped<ITextSerializationProvider, SystemTextJsonProvider>();
+            app.Services.AddScoped<ITextSerializationProvider, SystemTextJsonProvider>(sp => new SystemTextJsonProvider(new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }));
             app.Services.AddScoped<IMapperProvider, SerializerMapperProvider>();
 
             app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));
+
+
 
             return app;
         }

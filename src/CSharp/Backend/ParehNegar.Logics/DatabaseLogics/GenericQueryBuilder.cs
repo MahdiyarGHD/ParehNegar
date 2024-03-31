@@ -39,15 +39,39 @@ namespace ParehNegar.Logics.DatabaseLogics
             return await query.ToListAsync();
         }
 
-        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter)
+        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
         {
-            return await _context.Set<TEntity>().FirstOrDefaultAsync(filter);
+            var query = _context.Set<TEntity>().AsQueryable();
+
+            query = query.Where(filter);
+
+            if (includes != null)
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+            return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<TEntity> GetByIdAsync(object id)
+        public async Task<TEntity> GetByIdAsync(object id, params Expression<Func<TEntity, object>>[] includes)
         {
-            return await _context.Set<TEntity>().FindAsync(id);
+            var entity = await _context.Set<TEntity>().FindAsync(id);
+
+            if (includes != null)
+            {
+                IQueryable<TEntity> query = _context.Set<TEntity>().AsQueryable();
+
+                foreach (var include in includes)
+                    query = query.Include(include);
+
+                entity = await query.FirstOrDefaultAsync(e => Equals(e.Id, (TId)id));
+            }
+            else
+                entity = await _context.Set<TEntity>().FindAsync(id);
+            
+
+            return entity;
         }
+
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {

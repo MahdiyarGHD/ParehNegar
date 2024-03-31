@@ -13,33 +13,34 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Logics.DatabaseLogics;
 
-public class Logic<TEntity, TId> : ParehNegarContext where TEntity : class, IIdSchema<TId>
+public class Logic<TEntity, TId> where TEntity : class, IIdSchema<TId>
             where TId : new()
 
 {
     private readonly GenericQueryBuilder<TEntity, TId> _queryBuilder;
-    public Logic(DatabaseBuilder builder)
-        : base(builder)
+    public Logic(DbContext dbContext)
     {
-        _queryBuilder = new GenericQueryBuilder<TEntity, TId>(this);
+        _queryBuilder = new GenericQueryBuilder<TEntity, TId>(dbContext);
     }
 
 
     public DbSet<TEntity> Entities { get; set; }
 
-    public async Task<IEnumerable<TEntity>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null)
+    public async Task<IEnumerable<TEntity>> GetAllAsync(
+            Expression<Func<TEntity, bool>> filter = null,
+            params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
     {
-        return await _queryBuilder.GetAllAsync(filter);
+        return await _queryBuilder.GetAllAsync(filter, expressions);
     }
 
-    public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter)
+    public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
     {
-        return await _queryBuilder.GetByAsync(filter);
+        return await _queryBuilder.GetByAsync(filter, includes);
     }
 
-    public async Task<TEntity> GetByIdAsync(object id)
+    public async Task<TEntity> GetByIdAsync(TId id, params Expression<Func<TEntity, object>>[] includes)
     {
-        return await _queryBuilder.GetByIdAsync(id);
+        return await _queryBuilder.GetByIdAsync(id, includes);
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)

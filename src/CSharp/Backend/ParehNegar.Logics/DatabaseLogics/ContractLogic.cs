@@ -31,24 +31,24 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         _mapper = mapper;
     }
 
-    public async Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>>? filter = null)
+    public async Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null, params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
     {
         IEnumerable<TEntity> entities;
 
-        entities = await _queryBuilder.GetAllAsync(filter);
+        entities = await _queryBuilder.GetAllAsync(filter, expressions);
 
         return MapToResponseContracts(entities);
     }
 
-    public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter)
+    public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
     {
-        var entity = await _queryBuilder.GetByAsync(filter);
+        var entity = await _queryBuilder.GetByAsync(filter, includes);
         return MapToResponseContract(entity);
     }
 
-    public async Task<MessageContract<TResponseContract>> GetByIdAsync(TId id)
+    public async Task<MessageContract<TResponseContract>> GetByIdAsync(TId id, params Expression<Func<TEntity, object>>[] includes)
     {
-        var entity = await _queryBuilder.GetByIdAsync(id);
+        var entity = await _queryBuilder.GetByIdAsync(id, includes);
         if (entity is null)
             return (FailedReasonType.NotFound, "Item by predicate not found!");
         return MapToResponseContract(entity);
@@ -118,13 +118,6 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     private TResponseContract MapToResponseContract(TEntity entity)
     {
-        //IEntityType? entityType = _context?.Model?.FindEntityType(typeof(TEntity));
-        //IEnumerable<INavigation>? navigations = entityType?.GetNavigations();
-        //if (navigations?.Count() > 0)
-        //{
-
-        //}
-
         return _mapper.Map<TResponseContract>(entity);
     }
 

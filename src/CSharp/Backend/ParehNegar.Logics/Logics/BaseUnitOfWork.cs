@@ -102,7 +102,7 @@ namespace ParehNegar.Logics.Logics
             where TId : new()
             where TEntity : class, IIdSchema<TId>
         {
-            return AddDisposable(new Logic<TEntity, TId>(GetService<DatabaseBuilder>()));
+            return AddDisposable(new Logic<TEntity, TId>(GetService<DbContext>()));
         }
 
 
