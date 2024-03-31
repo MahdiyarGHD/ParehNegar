@@ -40,15 +40,15 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         return MapToResponseContracts(entities);
     }
 
-    public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
     {
-        var entity = await _queryBuilder.GetByAsync(filter, includes);
+        var entity = await _queryBuilder.GetByAsync(filter, expressions);
         return MapToResponseContract(entity);
     }
 
-    public async Task<MessageContract<TResponseContract>> GetByIdAsync(TId id, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<MessageContract<TResponseContract>> GetByIdAsync(TId id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
     {
-        var entity = await _queryBuilder.GetByIdAsync(id, includes);
+        var entity = await _queryBuilder.GetByIdAsync(id, expressions);
         if (entity is null)
             return (FailedReasonType.NotFound, "Item by predicate not found!");
         return MapToResponseContract(entity);

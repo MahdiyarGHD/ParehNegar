@@ -33,14 +33,14 @@ public class Logic<TEntity, TId> where TEntity : class, IIdSchema<TId>
         return await _queryBuilder.GetAllAsync(filter, expressions);
     }
 
-    public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
     {
-        return await _queryBuilder.GetByAsync(filter, includes);
+        return await _queryBuilder.GetByAsync(filter, expressions);
     }
 
-    public async Task<TEntity> GetByIdAsync(TId id, params Expression<Func<TEntity, object>>[] includes)
+    public async Task<TEntity> GetByIdAsync(TId id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
     {
-        return await _queryBuilder.GetByIdAsync(id, includes);
+        return await _queryBuilder.GetByIdAsync(id, expressions);
     }
 
     public async Task<TEntity> AddAsync(TEntity entity)

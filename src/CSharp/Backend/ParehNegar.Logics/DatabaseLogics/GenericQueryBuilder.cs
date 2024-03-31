@@ -39,39 +39,33 @@ namespace ParehNegar.Logics.DatabaseLogics
             return await query.ToListAsync();
         }
 
-        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<TEntity, object>>[] includes)
+        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
         {
-            var query = _context.Set<TEntity>().AsQueryable();
+            var query = _context.Set<TEntity>().AsQueryable().Where(filter);
 
-            query = query.Where(filter);
-
-            if (includes != null)
-                foreach (var include in includes)
-                    query = query.Include(include);
+            if (expressions != null)
+                foreach (var expression in expressions)
+                    query = expression.Compile()(query);
 
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<TEntity> GetByIdAsync(object id, params Expression<Func<TEntity, object>>[] includes)
+        public async Task<TEntity> GetByIdAsync(object id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
         {
             var entity = await _context.Set<TEntity>().FindAsync(id);
 
-            if (includes != null)
+            if (expressions != null)
             {
-                IQueryable<TEntity> query = _context.Set<TEntity>().AsQueryable();
+                var query = _context.Set<TEntity>().AsQueryable();
 
-                foreach (var include in includes)
-                    query = query.Include(include);
+                foreach (var expression in expressions)
+                    query = expression.Compile()(query);
 
                 entity = await query.FirstOrDefaultAsync(e => Equals(e.Id, (TId)id));
             }
-            else
-                entity = await _context.Set<TEntity>().FindAsync(id);
-            
 
             return entity;
         }
-
 
         public async Task<TEntity> AddAsync(TEntity entity)
         {
