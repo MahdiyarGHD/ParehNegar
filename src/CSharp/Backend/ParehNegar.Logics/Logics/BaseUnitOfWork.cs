@@ -7,6 +7,7 @@ using EasyMicroservices.Serialization.Newtonsoft.Json.Providers;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using ParehNegar.Database;
 using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
@@ -101,7 +102,7 @@ namespace ParehNegar.Logics.Logics
             where TId : new()
             where TEntity : class, IIdSchema<TId>
         {
-            return AddDisposable(new Logic<TEntity, TId>());
+            return AddDisposable(new Logic<TEntity, TId>(GetService<DatabaseBuilder>()));
         }
 
 

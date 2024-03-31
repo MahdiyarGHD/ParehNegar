@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Database.Contexts
 {
-    public sealed class ParehNegarContext : DbContext
+    public class ParehNegarContext : DbContext
     {
         private DatabaseBuilder _builder;
         public ParehNegarContext(DatabaseBuilder builder) 
@@ -35,6 +35,7 @@ namespace ParehNegar.Database.Contexts
             modelBuilder.Entity<ContentCategoryEntity>(model =>
             {
                 model.HasKey(x => x.Id);
+                model.HasIndex(x => x.Key).IsUnique();
                 model.Property(x => x.Key).UseCollation("SQL_Latin1_General_CP1_CS_AS");
             });
 

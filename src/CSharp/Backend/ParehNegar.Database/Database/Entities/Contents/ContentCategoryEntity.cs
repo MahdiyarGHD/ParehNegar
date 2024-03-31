@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Database.Database.Entities.Contents
 {
-    ‌public class ContentCategoryEntity : FullAbilityIdSchema<long>
+    public class ContentCategoryEntity : FullAbilityIdSchema<long>
     {
         public string? Key { get; set; }
 

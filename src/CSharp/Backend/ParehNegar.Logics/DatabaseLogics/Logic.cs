@@ -1,6 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Database;
+using ParehNegar.Database.Contexts;
 using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.Interfaces;
+using ParehNegar.Logics.Logics;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,13 +13,13 @@ using System.Threading.Tasks;
 
 namespace ParehNegar.Logics.DatabaseLogics;
 
-public class Logic<TEntity, TId> : DbContext where TEntity : class, IIdSchema<TId>
+public class Logic<TEntity, TId> : ParehNegarContext where TEntity : class, IIdSchema<TId>
             where TId : new()
 
 {
     private readonly GenericQueryBuilder<TEntity, TId> _queryBuilder;
-    public Logic()
-        : base()
+    public Logic(DatabaseBuilder builder)
+        : base(builder)
     {
         _queryBuilder = new GenericQueryBuilder<TEntity, TId>(this);
     }

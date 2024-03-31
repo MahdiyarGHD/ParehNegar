@@ -1,6 +1,8 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata;
+using ParehNegar.Database.Database.Entities.Contents;
 using ParehNegar.Domain;
 using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.DatabaseLogics;
@@ -20,9 +22,11 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 {
     private readonly GenericQueryBuilder<TEntity, TId> _queryBuilder;
     private readonly IMapperProvider _mapper;
+    private readonly DbContext _context;
 
     public ContractLogic(DbContext context, IMapperProvider mapper)
     {
+        _context = context;
         _queryBuilder = new(context);
         _mapper = mapper;
     }
@@ -114,6 +118,13 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     private TResponseContract MapToResponseContract(TEntity entity)
     {
+        //IEntityType? entityType = _context?.Model?.FindEntityType(typeof(TEntity));
+        //IEnumerable<INavigation>? navigations = entityType?.GetNavigations();
+        //if (navigations?.Count() > 0)
+        //{
+
+        //}
+
         return _mapper.Map<TResponseContract>(entity);
     }
 
