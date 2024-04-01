@@ -11,6 +11,7 @@ using Microsoft.OpenApi.Models;
 using ParehNegar.Database;
 using ParehNegar.Database.Contexts;
 using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Interfaces;
 using ParehNegar.Logics.Logics;
 using ParehNegar.WebApi.Middlewares;
@@ -130,7 +131,7 @@ namespace AppTax.WebApi
 
             app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));
 
-
+            app.Services.AddTransient<ContentHelper>();
 
             return app;
         }

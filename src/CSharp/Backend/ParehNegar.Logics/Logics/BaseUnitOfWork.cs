@@ -92,28 +92,28 @@ namespace ParehNegar.Logics.Logics
             return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
         }
 
-        public virtual LongContractLogic<TEntity, TContract> GetLongContractLogic<TEntity, TContract>()
-            where TContract : class
-            where TEntity : class, IIdSchema<long>
+        public virtual IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
+        where TContract : class
+        where TEntity : class, IIdSchema<long>
         {
-            return GetInternalLongContractLogic<TEntity, TContract>();
+            return GetInternalLongContractLogic<TEntity, TContract, TContract, TContract>();
         }
 
-        LongContractLogic<TEntity, TContract> GetInternalLongContractLogic<TEntity, TContract>()
-            where TContract : class
-            where TEntity : class, IIdSchema<long>
+        IContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalLongContractLogic<TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+        where TResponseContract : class
+        where TEntity : class, IIdSchema<long>
         {
-            return AddDisposable(new LongContractLogic<TEntity, TContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
+            return AddDisposable(new ContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
         }
 
         public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()
             where TId : new()
             where TEntity : class, IIdSchema<TId>
         {
-            return GetInternaltLogic<TEntity, TId>();
+            return GetInternalLogic<TEntity, TId>();
         }
 
-        Logic<TEntity, TId> GetInternaltLogic<TEntity, TId>()
+        Logic<TEntity, TId> GetInternalLogic<TEntity, TId>()
             where TId : new()
             where TEntity : class, IIdSchema<TId>
         {

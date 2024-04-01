@@ -19,7 +19,7 @@ namespace ParehNegar.Logics.Logics
             where TResponseContract : class
             where TId : new()
             where TEntity : class, IIdSchema<TId>;
-        public LongContractLogic<TEntity, TContract> GetLongContractLogic<TEntity, TContract>()
+        public IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
             where TContract : class
             where TEntity : class, IIdSchema<long>;
         public Logic<TEntity, TId> GetLogic<TEntity, TId>() where TId : new() where TEntity : class, IIdSchema<TId>;
