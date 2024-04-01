@@ -43,9 +43,10 @@ public class Logic<TEntity, TId> where TEntity : class, IIdSchema<TId>
         return await _queryBuilder.GetByIdAsync(id, expressions);
     }
 
-    public async Task<TEntity> AddAsync(TEntity entity)
+    public async Task<TId> AddAsync(TEntity entity)
     {
-        return await _queryBuilder.AddAsync(entity);
+        TEntity addedEntity = await _queryBuilder.AddAsync(entity);
+        return addedEntity.Id;
     }
 
     public async Task AddBulkAsync(IEnumerable<TEntity> entities)

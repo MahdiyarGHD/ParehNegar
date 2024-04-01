@@ -13,6 +13,7 @@ using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Reflection.Metadata.Ecma335;
 using System.Security.Cryptography;
@@ -89,6 +90,20 @@ namespace ParehNegar.Logics.Logics
             where TEntity : class, IIdSchema<TId>
         {
             return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
+        }
+
+        public virtual LongContractLogic<TEntity, TContract> GetLongContractLogic<TEntity, TContract>()
+            where TContract : class
+            where TEntity : class, IIdSchema<long>
+        {
+            return GetInternalLongContractLogic<TEntity, TContract>();
+        }
+
+        LongContractLogic<TEntity, TContract> GetInternalLongContractLogic<TEntity, TContract>()
+            where TContract : class
+            where TEntity : class, IIdSchema<long>
+        {
+            return AddDisposable(new LongContractLogic<TEntity, TContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
         }
 
         public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()

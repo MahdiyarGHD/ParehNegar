@@ -14,7 +14,7 @@ public interface IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateReq
     Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null, params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions);
     Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions);
     Task<MessageContract<TResponseContract>> GetByIdAsync(TId id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions);
-    Task<MessageContract<TResponseContract>> AddAsync(TCreateRequestContract createRequest);
+    Task<MessageContract<TId>> AddAsync(TCreateRequestContract createRequest);
     Task<MessageContract> AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests);
     Task<MessageContract<TResponseContract>> UpdateAsync(TUpdateRequestContract updateRequest);
     Task<MessageContract<TResponseContract>> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest);

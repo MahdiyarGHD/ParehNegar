@@ -15,10 +15,13 @@ namespace ParehNegar.Logics.Logics
     public interface IBaseUnitOfWork
     {
         public ValueTask DisposeAsync();
-        IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+        public IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
             where TResponseContract : class
             where TId : new()
             where TEntity : class, IIdSchema<TId>;
+        public LongContractLogic<TEntity, TContract> GetLongContractLogic<TEntity, TContract>()
+            where TContract : class
+            where TEntity : class, IIdSchema<long>;
         public Logic<TEntity, TId> GetLogic<TEntity, TId>() where TId : new() where TEntity : class, IIdSchema<TId>;
 
         IConfiguration GetConfiguration();

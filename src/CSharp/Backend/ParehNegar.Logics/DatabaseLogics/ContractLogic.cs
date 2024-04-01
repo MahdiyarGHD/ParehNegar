@@ -54,11 +54,11 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         return MapToResponseContract(entity);
     }
 
-    public async Task<MessageContract<TResponseContract>> AddAsync(TCreateRequestContract createRequest)
+    public async Task<MessageContract<TId>> AddAsync(TCreateRequestContract createRequest)
     {
         var entity = MapToEntity(createRequest);
         entity = await _queryBuilder.AddAsync(entity);
-        return MapToResponseContract(entity);
+        return entity.Id;
     }
 
     public async Task<MessageContract> AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests)
