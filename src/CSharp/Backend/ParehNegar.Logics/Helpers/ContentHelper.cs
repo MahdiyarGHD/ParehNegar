@@ -15,9 +15,9 @@ namespace ParehNegar.Logics.Helpers
 {
     public class ContentHelper(IUnitOfWork unitOfWork)
     {
-        private readonly IContractLogic<long, ContentEntity, ContentContract, ContentContract, ContentContract> _contentLogic = unitOfWork.GetLongContractLogic<ContentEntity, ContentContract>();
-        private readonly IContractLogic<long, ContentCategoryEntity, ContentCategoryContract, ContentCategoryContract, ContentCategoryContract> _categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();
-        private readonly IContractLogic<long, LanguageEntity, LanguageContract, LanguageContract, LanguageContract> _languageLogic = unitOfWork.GetLongContractLogic<LanguageEntity, LanguageContract>();
+        private readonly IContractLogic<long, ContentEntity, ContentContract, ContentContract, ContentResponseContract> _contentLogic = unitOfWork.GetContractLogic<long, ContentEntity, ContentContract, ContentContract, ContentResponseContract>();
+        private readonly IContractLogic<long, ContentCategoryEntity, ContentCategoryContract, ContentCategoryContract, ContentCategoryResponseContract> _categoryLogic = unitOfWork.GetContractLogic<long, ContentCategoryEntity, ContentCategoryContract, ContentCategoryContract, ContentCategoryResponseContract>();
+        private readonly IContractLogic<long, LanguageEntity, LanguageContract, LanguageContract, LanguageResponseContract> _languageLogic = unitOfWork.GetContractLogic<long, LanguageEntity, LanguageContract, LanguageContract, LanguageResponseContract>();
 
         public async Task<MessageContract<long>> Add(ContentContract request)
         {
@@ -27,21 +27,21 @@ namespace ParehNegar.Logics.Helpers
             return await _contentLogic.AddAsync(request);
         }
 
-        public async Task<MessageContract<ContentContract>> Update(ContentContract request)
+        public async Task<MessageContract<ContentResponseContract>> Update(ContentContract request)
         {
             var language = await _languageLogic.GetByIdAsync(request.LanguageId).AsCheckedResult(x => x.Result);
             var category = await _categoryLogic.GetByIdAsync(request.CategoryId).AsCheckedResult(x => x.Result);
             return await _contentLogic.UpdateAsync(request);
         }
 
-        public async Task<MessageContract<ContentContract>> GetByLanguage(GetByLanguageRequestContract request)
+        public async Task<MessageContract<ContentResponseContract>> GetByLanguage(GetByLanguageRequestContract request)
         {
             var getCategoryResult = await _categoryLogic.GetByAsync(c => c.Key.Equals(request.Key), 
                 exp => exp.Include(q => q.Contents)
                 .ThenInclude(q => q.Language));
 
             if (!getCategoryResult)
-                return getCategoryResult.ToContract<ContentContract>();
+                return getCategoryResult.ToContract<ContentResponseContract>();
 
             var contentResult = getCategoryResult.Result.Contents
                 .FirstOrDefault(x => x.Language.Name.Equals(request.Language, StringComparison.OrdinalIgnoreCase));
@@ -54,7 +54,7 @@ namespace ParehNegar.Logics.Helpers
             return contentResult;
         }
 
-        public async Task<ListMessageContract<ContentContract>> GetAllByKey(GetAllByKeyRequestContract request)
+        public async Task<ListMessageContract<ContentResponseContract>> GetAllByKey(GetAllByKeyRequestContract request)
         {
             var getCategoryResult = await _categoryLogic
                 .GetByAsync(c => c.Key.Equals(request.Key),
@@ -63,12 +63,12 @@ namespace ParehNegar.Logics.Helpers
                     .ThenInclude(x => x.Language));
 
             if (!getCategoryResult)
-                return getCategoryResult.ToListContract<ContentContract>();
+                return getCategoryResult.ToListContract<ContentResponseContract>();
 
             return getCategoryResult.Result.Contents;
         }
 
-        public async Task<MessageContract<ContentCategoryContract>> AddContentWithKey(AddContentWithKeyRequestContract request)
+        public async Task<MessageContract<ContentCategoryResponseContract>> AddContentWithKey(AddContentWithKeyRequestContract request)
         {
             var getCategoryResult = await _categoryLogic.GetByAsync(x => x.Key == request.Key);
             if (getCategoryResult.IsSuccess)
@@ -85,7 +85,7 @@ namespace ParehNegar.Logics.Helpers
                 });
 
                 if (!addCategoryResult.IsSuccess)
-                    return addCategoryResult.ToContract<ContentCategoryContract>();
+                    return addCategoryResult.ToContract<ContentCategoryResponseContract>();
 
                 foreach (var item in request.LanguageData)
                 {
@@ -116,7 +116,7 @@ namespace ParehNegar.Logics.Helpers
                 .Include(x => x.Contents)
                  .ThenInclude(x => x.Language)).AsCheckedResult(x => x.Result);
 
-            List<ContentContract> contents = getCategoryResult.Contents;
+            List<ContentResponseContract> contents = getCategoryResult.Contents;
             foreach (var content in contents)
             {
                 if (request.LanguageData.Any(o => o.Language == content.Language.Name))

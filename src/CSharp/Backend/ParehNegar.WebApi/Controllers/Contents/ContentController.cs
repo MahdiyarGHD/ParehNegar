@@ -1,6 +1,7 @@
 ﻿using EasyMicroservices.ServiceContracts;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ParehNegar.Database.Database.Entities.Contents;
 using ParehNegar.Domain.Contracts.Contents;
 using ParehNegar.Logics.DatabaseLogics;
@@ -29,9 +30,19 @@ namespace ParehNegar.WebApi.Controllers.Contents
         }
 
         [HttpPost]
-        public async Task<MessageContract<ContentContract>> GetByLanguage(GetByLanguageRequestContract request)
+        public async Task<MessageContract<ContentResponseContract>> GetByLanguage(GetByLanguageRequestContract request)
         {
             return await unitOfWork.GetContentHelper().GetByLanguage(request);
+        }
+
+        [HttpDelete]
+        public async Task<MessageContract> DeleteByKey(DeleteByKeyRequestContract request)
+        {
+            var categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();
+            ContentCategoryContract category = await categoryLogic.GetByAsync(x => x.Key.Equals(request.Key), q => q.Include(x => x.Contents)).AsCheckedResult(x => x.Result);
+
+            var response = await categoryLogic.HardDeleteByIdAsync(category.Id);
+            return response.IsSuccess;
         }
     }
 }

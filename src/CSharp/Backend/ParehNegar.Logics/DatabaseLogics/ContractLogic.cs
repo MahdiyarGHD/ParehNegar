@@ -43,6 +43,8 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
     public async Task<MessageContract<TResponseContract>> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
     {
         var entity = await _queryBuilder.GetByAsync(filter, expressions);
+        if (entity is null)
+            return (FailedReasonType.NotFound, "Item by predicate not found!");
         return MapToResponseContract(entity);
     }
 
@@ -89,11 +91,18 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     public async Task<MessageContract<TResponseContract>> HardDeleteByIdAsync(TId id)
     {
-        return MapToResponseContract(await _queryBuilder.HardDeleteByIdAsync(id));
+        var entity = await _queryBuilder.HardDeleteByIdAsync(id);
+        if (entity is null)
+            return (FailedReasonType.NotFound, "Item by predicate not found!");
+        return MapToResponseContract(entity);
     }
+
     public async Task<MessageContract<TResponseContract>> SoftDeleteByIdAsync(TId id)
     {
-        return MapToResponseContract(await _queryBuilder.SoftDeleteByIdAsync(id));
+        var entity = await _queryBuilder.SoftDeleteByIdAsync(id);
+        if (entity is null)
+            return (FailedReasonType.NotFound, "Item by predicate not found!");
+        return MapToResponseContract(entity);
     }
 
     public async Task<MessageContract<int>> BulkHardDeleteByIdAsync(IEnumerable<TId> ids)
