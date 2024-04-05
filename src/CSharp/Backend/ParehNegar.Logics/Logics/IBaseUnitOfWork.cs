@@ -1,8 +1,10 @@
 ﻿using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.Serialization.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -26,7 +28,9 @@ namespace ParehNegar.Logics.Logics
 
         IConfiguration GetConfiguration();
         string GetValue(string key);
+        public ContentLanguageHelper GetContentLanguageHelper();
         IMapperProvider GetMapper();
+        DbContext GetDbContext();
         ITextSerializationProvider GetTextSerialization();
     }
 }

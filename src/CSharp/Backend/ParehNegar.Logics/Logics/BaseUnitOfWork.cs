@@ -10,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ParehNegar.Database;
 using ParehNegar.Domain.BaseModels;
 using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -44,6 +45,11 @@ namespace ParehNegar.Logics.Logics
         public T GetService<T>()
         {
             return ServiceProvider.GetService<T>();
+        }
+
+        public ContentLanguageHelper GetContentLanguageHelper()
+        {
+            return GetService<ContentLanguageHelper>();
         }
 
         public virtual async ValueTask DisposeAsync()
@@ -89,7 +95,7 @@ namespace ParehNegar.Logics.Logics
 
             where TEntity : class, IIdSchema<TId>
         {
-            return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
+            return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(this));
         }
 
         public virtual IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
@@ -103,7 +109,7 @@ namespace ParehNegar.Logics.Logics
         where TResponseContract : class
         where TEntity : class, IIdSchema<long>
         {
-            return AddDisposable(new ContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(AddDisposable(GetService<DbContext>()), AddDisposable(GetService<IMapperProvider>())));
+            return AddDisposable(new ContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(this));
         }
 
         public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()
@@ -153,9 +159,15 @@ namespace ParehNegar.Logics.Logics
             return mapper;
         }
 
+        public virtual DbContext GetDbContext()
+        {
+            return GetService<DbContext>();
+        }
+
         public ITextSerializationProvider GetTextSerialization()
         {
-            return ServiceProvider.GetService<ITextSerializationProvider>();
+            return GetService<ITextSerializationProvider>();
+
         }
     }
 }

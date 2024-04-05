@@ -1,5 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using ParehNegar.Database.Database.Entities;
 using ParehNegar.Database.Database.Entities.Contents;
+using ParehNegar.Domain.Contracts;
 using System;
 using System.Collections.Generic;
 using System.Linq;

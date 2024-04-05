@@ -10,6 +10,7 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using ParehNegar.Database;
 using ParehNegar.Database.Contexts;
+using ParehNegar.Domain.Contracts;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Interfaces;
@@ -128,8 +129,10 @@ namespace AppTax.WebApi
 
             app.Services.AddScoped<ITextSerializationProvider, SystemTextJsonProvider>(sp => new SystemTextJsonProvider(new JsonSerializerOptions { ReferenceHandler = ReferenceHandler.IgnoreCycles }));
             app.Services.AddScoped<IMapperProvider, SerializerMapperProvider>();
+            app.Services.AddScoped<IMapperProvider, SerializerMapperProvider>();
 
             app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));
+            app.Services.AddScoped<ContentLanguageHelper>();
 
             app.Services.AddTransient<ContentHelper>();
 

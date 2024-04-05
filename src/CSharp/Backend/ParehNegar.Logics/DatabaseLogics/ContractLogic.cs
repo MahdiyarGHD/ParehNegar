@@ -1,35 +1,39 @@
-﻿using EasyMicroservices.Mapper.Interfaces;
+﻿using AutoMapper.Internal;
+using EasyMicroservices.Mapper.Interfaces;
 using EasyMicroservices.ServiceContracts;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 using ParehNegar.Database.Database.Entities.Contents;
 using ParehNegar.Domain;
+using ParehNegar.Domain.Attributes;
 using ParehNegar.Domain.BaseModels;
+using ParehNegar.Domain.Contracts;
+using ParehNegar.Domain.Contracts.Contents;
 using ParehNegar.Logics.DatabaseLogics;
+using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Interfaces;
+using ParehNegar.Logics.Logics;
 using System;
 using System.Collections.Generic;
 using System.Data.SqlTypes;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net;
+using System.Reflection;
+using System.Reflection.Metadata;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Threading.Tasks;
 
 namespace ParehNegar.Logics.DatabaseLogics;
 
-public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
+public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(IBaseUnitOfWork unitOfWork, bool isMultilingual = false)
         : IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>
     where TEntity : class, IIdSchema<TId> where TId : new()
 {
-    private readonly GenericQueryBuilder<TEntity, TId> _queryBuilder;
-    private readonly IMapperProvider _mapper;
-    private readonly DbContext _context;
-
-    public ContractLogic(DbContext context, IMapperProvider mapper)
-    {
-        _context = context;
-        _queryBuilder = new(context);
-        _mapper = mapper;
-    }
+    private readonly GenericQueryBuilder<TEntity, TId> _queryBuilder = new(unitOfWork.GetDbContext());
+    private readonly IMapperProvider _mapper = unitOfWork.GetMapper();
+    private readonly string _defaultLanguage = unitOfWork.GetValue("DefaultSettings.Language");
 
     public async Task<ListMessageContract<TResponseContract>> GetAllAsync(Expression<Func<TEntity, bool>> filter = null, params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
     {
@@ -58,8 +62,18 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     public async Task<MessageContract<TId>> AddAsync(TCreateRequestContract createRequest)
     {
-        var entity = MapToEntity(createRequest);
+        TCreateRequestContract requestToMap = unitOfWork.GetMapper().Map<TCreateRequestContract>(createRequest);
+        foreach (var property in requestToMap.GetType().GetProperties())
+            if (Attribute.IsDefined(property, typeof(ContentLanguageAttribute)))
+                property.SetValue(requestToMap, null);
+
+        var entity = MapToEntity(requestToMap);
         entity = await _queryBuilder.AddAsync(entity);
+        if (entity is not null)
+        {
+            createRequest?.GetType()?.GetProperty("Id", BindingFlags.Instance | BindingFlags.Public)?.SetValue(createRequest, entity.Id);
+            await AddContentsIfNecessary(createRequest);
+        }
         return entity.Id;
     }
 
@@ -67,6 +81,7 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
     {
         var entities = createRequests.Select(MapToEntity);
         await _queryBuilder.AddBulkAsync(entities);
+
         return true;
     }
 
@@ -115,6 +130,51 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         return await _queryBuilder.BulkSoftDeleteByIdAsync(ids);
     }
 
+
+    private async Task AddContentsIfNecessary(TCreateRequestContract contract)
+    {
+        List<PropertyInfo> contentLanguageProps = typeof(TCreateRequestContract).GetProperties()
+            .Where(prop => Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
+            .ToList();
+
+        if (contentLanguageProps.Count == 0)
+            return;
+
+        if (contentLanguageProps.Any(x => !Equals(x.PropertyType, typeof(IEnumerable<LanguageDataContract>))))
+        {
+            Type modifiedContractType = ContentTypeModifier.ModifyMultilingualRequestType(typeof(TCreateRequestContract));
+            var newRequest = Activator.CreateInstance(modifiedContractType);
+
+            if (Attribute.IsDefined(modifiedContractType, typeof(ContentIdentifierAttribute)))
+                foreach (var prop in modifiedContractType.GetRuntimeProperties())
+                {
+                    PropertyInfo? contractProp = contract?.GetType()?.GetProperty(prop.Name);
+                    object? contractPropValue = contractProp?.GetValue(contract);
+
+                    if (!Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
+                    {
+                        prop.SetValue(newRequest, contractPropValue);
+                        continue;
+                    }
+
+                    if (contractProp.PropertyType.IsAssignableFrom(typeof(List<LanguageDataContract>)))
+                        prop.SetValue(newRequest, contractPropValue);
+                    else
+                        prop.SetValue(newRequest, new List<LanguageDataContract> {
+                            new()
+                            {
+                                Language = _defaultLanguage ?? "en-US",
+                                Data = contractPropValue as string ?? ""
+                            }}
+                        );
+                }
+
+            await unitOfWork.GetContentLanguageHelper().AddToContentLanguage(newRequest);
+        }
+        else
+            await unitOfWork.GetContentLanguageHelper().AddToContentLanguage(contract);
+    }
+
     private TEntity MapToEntity(TCreateRequestContract createRequest)
     {
         return _mapper.Map<TEntity>(createRequest);
@@ -127,7 +187,9 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     private TResponseContract MapToResponseContract(TEntity entity)
     {
-        return _mapper.Map<TResponseContract>(entity);
+        TResponseContract mappedContract = _mapper.Map<TResponseContract>(entity);
+        unitOfWork.GetContentLanguageHelper().ResolveContentLanguage(mappedContract, _defaultLanguage);
+        return mappedContract;
     }
 
     private List<TResponseContract> MapToResponseContracts(IEnumerable<TEntity> entities)

@@ -13,5 +13,6 @@ namespace ParehNegar.Logics.Logics
         {
             return GetService<ContentHelper>(); 
         }
+
     }
 }
