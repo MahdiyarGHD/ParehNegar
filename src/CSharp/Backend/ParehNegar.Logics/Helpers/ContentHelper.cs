@@ -121,16 +121,20 @@ namespace ParehNegar.Logics.Helpers
             {
                 if (request.LanguageData.Any(o => o.Language == content.Language.Name))
                 {
-                    var response = await _contentLogic.UpdateAsync(new ContentContract
+                    var data = request.LanguageData.FirstOrDefault(o => o.Language == content.Language.Name)?.Data;
+                    if(!data.IsNullOrEmpty())
                     {
-                        Id = content.Id,
-                        CategoryId = content.CategoryId,
-                        LanguageId = content.LanguageId,
-                        Data = request.LanguageData.FirstOrDefault(o => o.Language == content.Language.Name).Data
-                    });
+                        var response = await _contentLogic.UpdateAsync(new ContentContract
+                        {
+                            Id = content.Id,
+                            CategoryId = content.CategoryId,
+                            LanguageId = content.LanguageId,
+                            Data = data
+                        });
 
                     if (!response.IsSuccess)
                         return response.ToContract();
+                    }
                 }
             }
 

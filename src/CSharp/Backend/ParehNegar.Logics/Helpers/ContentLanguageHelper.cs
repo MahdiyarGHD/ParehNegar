@@ -242,13 +242,17 @@ namespace ParehNegar.Logics.Helpers
                 {
                     IsSuccess = true,
                 };
-            string uniqueIdentity = default;
+            var identifierAttr = item.GetType().GetCustomAttribute(typeof(ContentIdentifierAttribute)) as ContentIdentifierAttribute;
+            if (identifierAttr.Identifier.IsNullOrEmpty())
+                return (FailedReasonType.Empty, "Identifier is not initialized correctly.");
 
-            var uidProperty = item.GetType().GetProperty("UniqueIdentity", BindingFlags.Instance | BindingFlags.Public);
-            if (uidProperty != null)
-                uniqueIdentity = uidProperty.GetValue(item) as string;
+            object id = item.GetType().GetProperty("Id", BindingFlags.Instance | BindingFlags.Public).GetValue(item);
+            if (id is null)
+                return (FailedReasonType.Empty, "Id cannot be empty.");
+
+            string uniqueIdentity = $"{identifierAttr.Identifier}-{id}";
             var request = new List<(string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)>();
-            foreach (var property in item.GetType().GetProperties(System.Reflection.BindingFlags.Public | System.Reflection.BindingFlags.Instance))
+            foreach (var property in item.GetType().GetProperties(BindingFlags.Public | BindingFlags.Instance))
             {
                 if (TryGetPropertyName(property, out string propertyName))
                 {

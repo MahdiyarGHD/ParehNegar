@@ -86,33 +86,47 @@
 //            var test = await logic.AddAsync(new PersonContract { LastName = "Ghannad", Name = "Mahdiyar", Age = 12 });
 
 //            return test;
-//            //var contentHelper = unitOfWork.GetContentLanguageHelper();
+//        }
+        
+//        [HttpGet]
+//        public async Task<MessageContract> TestAddBulk()
+//        {
+//            var logic = unitOfWork.GetLongContractLogic<PersonEntity, PersonContract>();
 
+//            var test = await logic.AddBulkAsync([new PersonContract { LastName = "Doe", Name = "Mahi", Age = 15 }, new PersonContract { LastName = "Shakhmoradi", Name = "John", Age = 18 }]);
 
-//            //PersonContract req = new() { Id = test.Result, Name = "Mahdiyar", LastName = "Ghannad" };
+//            return test;
+//        }
+        
+//        [HttpGet]
+//        public async Task<MessageContract> TestUpdate()
+//        {
+//            var logic = unitOfWork.GetLongContractLogic<PersonEntity, PersonContract>();
 
-//            //Type modifiedContractType = ContentTypeModifier.ModifyMultilingualRequestType(typeof(PersonContract));
-//            //var newRequest = Activator.CreateInstance(modifiedContractType);
+//            var test = await logic.UpdateAsync(new PersonContract { Id = 1, LastName = "xcxcxcx", Name = "afafaasf", Age = 12 });
 
-//            //if (!Attribute.IsDefined(modifiedContractType, typeof(ContentIdentifierAttribute)))
-//            //    return false;
+//            return test;
+//        }
+        
+//        [HttpGet]
+//        public async Task<MessageContract> TestUpdateBulk()
+//        {
+//            var logic = unitOfWork.GetLongContractLogic<PersonEntity, PersonContract>();
 
-//            //foreach (var prop in modifiedContractType.GetRuntimeProperties())
-//            //{
-//            //    if (Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
-//            //        prop.SetValue(newRequest, new List<LanguageDataContract> {
-//            //        new ()
-//            //        {
-//            //            Language = "fa-IR",
-//            //            Data = req?.GetType()?.GetProperty(prop.Name)?.GetValue(req) as string ?? ""
-//            //        }});
-//            //    else
-//            //        prop.SetValue(newRequest, req?.GetType()?.GetProperty(prop.Name)?.GetValue(req));
-//            //}
+//            var test = await logic.UpdateBulkAsync([new PersonContract { Id = 1, LastName = "xcxcxcx", Name = "afafaasf", Age = 12 }, new PersonContract { Id = 2, LastName = "hhhhhhhhhh", Name = "ggggggg", Age = 15 }]);
 
-//            //await contentHelper.AddToContentLanguage(newRequest);
+//            return test;
+//        }
+        
+        
+//        [HttpGet]
+//        public async Task<MessageContract> UpdateChangedValuesAsync()
+//        {
+//            var logic = unitOfWork.GetLongContractLogic<PersonEntity, PersonContract>();
 
-//            //return test;
+//            var test = await logic.UpdateChangedValuesOnlyAsync(new PersonContract { Id = 1, LastName = null, Name = "afafaasf", Age = 15 });
+
+//            return test;
 //        }
 
 //        [HttpGet]

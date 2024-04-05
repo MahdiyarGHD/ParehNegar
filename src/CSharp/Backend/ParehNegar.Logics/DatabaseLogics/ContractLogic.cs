@@ -62,10 +62,7 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     public async Task<MessageContract<TId>> AddAsync(TCreateRequestContract createRequest)
     {
-        TCreateRequestContract requestToMap = unitOfWork.GetMapper().Map<TCreateRequestContract>(createRequest);
-        foreach (var property in requestToMap.GetType().GetProperties())
-            if (Attribute.IsDefined(property, typeof(ContentLanguageAttribute)))
-                property.SetValue(requestToMap, null);
+        TCreateRequestContract requestToMap = EnsureContentPropertiesAreNull(createRequest);
 
         var entity = MapToEntity(requestToMap);
         entity = await _queryBuilder.AddAsync(entity);
@@ -79,28 +76,63 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
     public async Task<MessageContract> AddBulkAsync(IEnumerable<TCreateRequestContract> createRequests)
     {
-        var entities = createRequests.Select(MapToEntity);
+        var tasks = new List<Task>();
+
+        var entities = createRequests.Select(request =>
+        {
+            TCreateRequestContract requestToMap = EnsureContentPropertiesAreNull(request);
+            return MapToEntity(requestToMap);
+        }).ToList();
+
         await _queryBuilder.AddBulkAsync(entities);
+
+        foreach ((TCreateRequestContract createRequest, TEntity entity) in createRequests.Zip(entities, (c, e) => (c, e)))
+        {
+            createRequest?.GetType()?.GetProperty("Id", BindingFlags.Instance | BindingFlags.Public)?.SetValue(createRequest, entity.Id);
+            tasks.Add(AddContentsIfNecessary(createRequest));
+        }
+
+        await Task.WhenAll(tasks);
 
         return true;
     }
 
     public async Task<MessageContract<TResponseContract>> UpdateAsync(TUpdateRequestContract updateRequest)
     {
-        var entity = MapToEntity(updateRequest);
+        TUpdateRequestContract requestToMap = EnsureContentPropertiesAreNull(updateRequest);
+
+        var entity = MapToEntity(requestToMap);
+        if (entity is not null)
+            await UpdateContentsIfNecessary(updateRequest);
         return MapToResponseContract(await _queryBuilder.UpdateAsync(entity));
     }
 
     public async Task<MessageContract<TResponseContract>> UpdateChangedValuesOnlyAsync(TUpdateRequestContract updateRequest)
     {
-        var entity = MapToEntity(updateRequest);
+        TUpdateRequestContract requestToMap = EnsureContentPropertiesAreNull(updateRequest);
+
+        var entity = MapToEntity(requestToMap);
+        if (entity is not null)
+            await UpdateContentsIfNecessary(updateRequest);
+        
         return MapToResponseContract(await _queryBuilder.UpdateChangedValuesOnlyAsync(entity));
     }
 
     public async Task<MessageContract> UpdateBulkAsync(IEnumerable<TUpdateRequestContract> updateRequests)
     {
-        var entities = updateRequests.Select(MapToEntity);
+        var tasks = new List<Task>();
+
+        var entities = updateRequests.Select(MapToEntity).ToList();
+
         await _queryBuilder.UpdateBulkAsync(entities);
+
+        foreach (var updateRequest in updateRequests)
+        {
+            tasks.Add(UpdateContentsIfNecessary(updateRequest));
+        }
+
+        await Task.WhenAll(tasks);
+
         return true;
     }
 
@@ -130,6 +162,47 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
         return await _queryBuilder.BulkSoftDeleteByIdAsync(ids);
     }
 
+    private object ModifyRequestContentIfNecessary<TContract>(TContract contract)
+    {
+        Type modifiedContractType = ContentTypeModifier.ModifyMultilingualRequestType(typeof(TCreateRequestContract));
+        var newRequest = Activator.CreateInstance(modifiedContractType);
+
+        if (Attribute.IsDefined(modifiedContractType, typeof(ContentIdentifierAttribute)))
+            foreach (var prop in modifiedContractType.GetRuntimeProperties())
+            {
+                PropertyInfo? contractProp = contract?.GetType()?.GetProperty(prop.Name);
+                object? contractPropValue = contractProp?.GetValue(contract);
+
+                if (!Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
+                {
+                    prop.SetValue(newRequest, contractPropValue);
+                    continue;
+                }
+
+                if (contractProp.PropertyType.IsAssignableFrom(typeof(List<LanguageDataContract>)))
+                    prop.SetValue(newRequest, contractPropValue);
+                else
+                    prop.SetValue(newRequest, new List<LanguageDataContract> {
+                            new()
+                            {
+                                Language = _defaultLanguage ?? "en-US",
+                                Data = contractPropValue as string ?? ""
+                            }}
+                    );
+            }
+
+        return newRequest;
+    }
+
+    private TContract EnsureContentPropertiesAreNull<TContract>(TContract contract)
+    {
+        TContract requestToMap = unitOfWork.GetMapper().Map<TContract>(contract);
+        foreach (var property in requestToMap.GetType().GetProperties())
+            if (Attribute.IsDefined(property, typeof(ContentLanguageAttribute)))
+                property.SetValue(requestToMap, null);
+
+        return requestToMap;
+    }
 
     private async Task AddContentsIfNecessary(TCreateRequestContract contract)
     {
@@ -142,37 +215,31 @@ public class ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestC
 
         if (contentLanguageProps.Any(x => !Equals(x.PropertyType, typeof(IEnumerable<LanguageDataContract>))))
         {
-            Type modifiedContractType = ContentTypeModifier.ModifyMultilingualRequestType(typeof(TCreateRequestContract));
-            var newRequest = Activator.CreateInstance(modifiedContractType);
-
-            if (Attribute.IsDefined(modifiedContractType, typeof(ContentIdentifierAttribute)))
-                foreach (var prop in modifiedContractType.GetRuntimeProperties())
-                {
-                    PropertyInfo? contractProp = contract?.GetType()?.GetProperty(prop.Name);
-                    object? contractPropValue = contractProp?.GetValue(contract);
-
-                    if (!Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
-                    {
-                        prop.SetValue(newRequest, contractPropValue);
-                        continue;
-                    }
-
-                    if (contractProp.PropertyType.IsAssignableFrom(typeof(List<LanguageDataContract>)))
-                        prop.SetValue(newRequest, contractPropValue);
-                    else
-                        prop.SetValue(newRequest, new List<LanguageDataContract> {
-                            new()
-                            {
-                                Language = _defaultLanguage ?? "en-US",
-                                Data = contractPropValue as string ?? ""
-                            }}
-                        );
-                }
+            var newRequest = ModifyRequestContentIfNecessary(contract);
 
             await unitOfWork.GetContentLanguageHelper().AddToContentLanguage(newRequest);
         }
         else
             await unitOfWork.GetContentLanguageHelper().AddToContentLanguage(contract);
+    }
+
+    private async Task UpdateContentsIfNecessary(TUpdateRequestContract contract)
+    {
+        List<PropertyInfo> contentLanguageProps = typeof(TUpdateRequestContract).GetProperties()
+            .Where(prop => Attribute.IsDefined(prop, typeof(ContentLanguageAttribute)))
+            .ToList();
+
+        if (contentLanguageProps.Count == 0)
+            return;
+
+        if (contentLanguageProps.Any(x => !Equals(x.PropertyType, typeof(IEnumerable<LanguageDataContract>))))
+        {
+            var newRequest = ModifyRequestContentIfNecessary(contract);
+
+            await unitOfWork.GetContentLanguageHelper().UpdateToContentLanguage(newRequest);
+        }
+        else
+            await unitOfWork.GetContentLanguageHelper().UpdateToContentLanguage(contract);
     }
 
     private TEntity MapToEntity(TCreateRequestContract createRequest)
