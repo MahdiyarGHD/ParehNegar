@@ -5,6 +5,5 @@ store.homePageActiveTab = 2;
 </script>
 
 <template>
-    Silence can be gold
 </template>
 
