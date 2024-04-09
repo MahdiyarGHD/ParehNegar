@@ -1,7 +1,9 @@
 <script setup>
 import contentApi from '../client/contentApi.js'
+import { onMounted } from 'vue';
 
-window.addEventListener("load", function() { 
+
+onMounted(() => {
   const container = document.getElementById("app");
   const elements = container.querySelectorAll("[static-content]");
   
@@ -48,7 +50,8 @@ window.addEventListener("load", function() {
               }
             ]
           }
-        }, (err, response) => {
+        }, () => {
+          element.innerHTML = textarea.value
           saveButton.remove();
           textarea.remove();
         })
@@ -60,15 +63,14 @@ window.addEventListener("load", function() {
 
     container.appendChild(button);
     
-    
-      contentApi.apiContentGetByLanguagePost({
-            body: { 
-              key: element.getAttribute("static-content"),
-              language: ""
-            }
-      }, (err, response) => element.innerHTML = response?.result?.data)
+    contentApi.apiContentGetByLanguagePost({
+          body: { 
+            key: element.getAttribute("static-content"),
+            language: ""
+          }
+    }, (err, response) => element.innerHTML = response?.result?.data ?? element.getAttribute("static-content"))
   });
-  
-});
-
+})
 </script>
+
+<template></template>
