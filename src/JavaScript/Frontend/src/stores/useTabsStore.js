@@ -3,23 +3,24 @@ import { ref } from "vue";
 import { useRouter } from 'vue-router';
 
 export const useTabsStore = defineStore('tabs', () => {
+    const router = useRouter(); 
     const homePageTabList = ref([
         {
             name: 'تمام‌پاره ها <span class="icon-code-outline tabs-icon"></span>',
             action: () => {
-                this.$emit('navigate-to-home');
+                router.push({ name: 'discover' })
             }
         },
         {
             name: 'چند شاخه‌ شده‌ها <span class="icon-code-fork tabs-icon"></span>',
             action: () => {
-                router.push({ path: 'forked-discovery' })
+                router.push({ name: 'forked-discovery' })
             }
         },
         {
             name: 'ستاره‌ خورده‌‌ها <span class="icon-star-empty tabs-icon"></span>',
             action: () => {
-                router.push({ path: 'home' })
+                router.push({ name: 'starred-discovery' })
             }
         }
     ]); 
