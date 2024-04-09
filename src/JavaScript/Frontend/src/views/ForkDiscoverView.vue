@@ -6,4 +6,3 @@ store.homePageActiveTab = 2;
 
 <template>
 </template>
-

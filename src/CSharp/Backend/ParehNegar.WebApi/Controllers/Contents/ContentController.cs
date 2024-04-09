@@ -35,7 +35,7 @@ namespace ParehNegar.WebApi.Controllers.Contents
             return await unitOfWork.GetContentHelper().GetByLanguage(request);
         }
 
-        [HttpDelete]
+        [HttpPost]
         public async Task<MessageContract> DeleteByKey(DeleteByKeyRequestContract request)
         {
             var categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();

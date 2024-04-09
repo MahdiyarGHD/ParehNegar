@@ -1,22 +1,11 @@
 <script setup>
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import Header from './components/Header.vue'
-
 import Tabs from "./components/Tabs.vue";
 import { useTabsStore } from './stores/useTabsStore.js'
+import contentApi from './client/contentApi.js'
 
 const store = useTabsStore();
-const router = useRouter();
-
-  // const navigate = (name) => {
-  //       router.push({name: name})
-  // }
-
-  // return {
-  //   navigate
-  // };
-
-
 </script>
 
 <template>

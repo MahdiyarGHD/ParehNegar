@@ -9,7 +9,7 @@ namespace ParehNegar.Database.Database.Entities.Contents
 {
     public class ContentCategoryEntity : FullAbilityIdSchema<long>
     {
-        public string? Key { get; set; }
+        public string Key { get; set; }
 
         public ICollection<ContentEntity> Contents { get; set; }
     }

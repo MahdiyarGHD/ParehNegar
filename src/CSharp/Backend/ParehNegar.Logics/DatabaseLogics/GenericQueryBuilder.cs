@@ -39,9 +39,11 @@ namespace ParehNegar.Logics.DatabaseLogics
             return await query.ToListAsync();
         }
 
-        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
+        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter = null, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
         {
-            var query = _context.Set<TEntity>().AsQueryable().Where(filter);
+            IQueryable<TEntity> query = _context.Set<TEntity>();
+
+            query = filter is not null ? query.Where(filter) : query;
 
             if (expressions != null)
                 foreach (var expression in expressions)
