@@ -93,21 +93,12 @@
 }
 
 .main-header-nav-searchbox {
-    all: unset;
     margin-top: 9px;
     margin-left: 15px;
     font-size: 13px;
     float: left;
     height: 18px;
     width: 170px;
-    font-family: Estedad;
-    text-align: right;
-    direction: rtl;
-    background-color: #161B21;
-    border-radius: 5px;
-    border: 0.5px solid #2a3042;
-    color: #e4e4e4;
-    padding: 0.4em 0.5em;
 }
 
 .main-header-nav-searchbox:focus {

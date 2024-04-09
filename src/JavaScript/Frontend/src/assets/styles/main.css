@@ -1,4 +1,5 @@
 @import './base.css';
+@import '../icons/style.css';
 
 body {
   font-family: "Estedad";
@@ -7,4 +8,55 @@ body {
     conic-gradient(from 90deg at 0.5px 0.5px,#0000 90deg,rgba(219, 219, 219, 0.028) 0) 
     0 0/35px 35px, #0C1120;
   color: #e4e4e4;  
+}
+
+h3 {
+  font-size: 20px;
+}
+
+.main-container {
+  margin: 0 auto;
+  width: 924px;
+}
+
+.tabs-container {
+  width: 100%;
+}
+
+input {
+  all: unset;
+  font-family: Estedad;
+  text-align: right;
+  direction: rtl;
+  background-color: #161B21;
+  border-radius: 5px;
+  border: 0.5px solid #2a3042;
+  color: #e4e4e4;
+  padding: 0.4em 0.5em;
+}
+
+.tabs {
+  margin-top: 20px;
+  width: 100%;
+}
+
+.tabs-icon {
+  position: absolute;
+  font-size: 22px;
+  display: block;
+  float: right;
+  top: 4px;
+  right: 5px;
+}
+
+.icon-star-empty {
+  font-size: 17px;
+  top: 0.55em;
+  right: 0.55em;
+}
+
+.icon-code-fork {
+  font-size: 17px;
+  top: 0.55em;
+  right: 0.8em;
 }
