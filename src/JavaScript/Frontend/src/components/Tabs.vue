@@ -66,6 +66,7 @@ a {
     display: block;
     padding: 0.55rem 0.55rem;
     padding-right: 34px;
+    transition: all 100ms ease;
 }
 
 a:hover {

@@ -23,7 +23,7 @@ h3 {
   width: 100%;
 }
 
-input {
+:is(input, button, textarea) {
   all: unset;
   font-family: Estedad;
   text-align: right;
@@ -59,4 +59,15 @@ input {
   font-size: 17px;
   top: 0.55em;
   right: 0.8em;
+}
+
+.content-edit-btn {
+  width: 22px;
+  font-size: 12px;
+  margin: 0 5px;
+  cursor: pointer;
+}
+
+.content-edit-btn:hover {
+  opacity: 80%;
 }
