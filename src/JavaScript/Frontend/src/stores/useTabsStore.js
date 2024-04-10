@@ -6,19 +6,19 @@ export const useTabsStore = defineStore('tabs', () => {
     const router = useRouter(); 
     const homePageTabList = ref([
         {
-            name: 'تمام‌پاره ها <span class="icon-code-outline tabs-icon"></span>',
+            name: '<span static-content="homepage-firsttab-title">تمام‌پاره ها</span><span class="icon-code-outline tabs-icon"></span>',
             action: () => {
                 router.push({ name: 'discover' })
             }
         },
         {
-            name: 'چند شاخه‌ شده‌ها <span class="icon-code-fork tabs-icon"></span>',
+            name: '<span static-content="homepage-secondtab-title">چندشاخه شده‌ها</span></span><span class="icon-code-fork tabs-icon"></span>',
             action: () => {
                 router.push({ name: 'forked-discovery' })
             }
         },
         {
-            name: 'ستاره‌ خورده‌‌ها <span class="icon-star-empty tabs-icon"></span>',
+            name: '<span static-content="homepage-thirdtab-title">ستاره‌ خورده‌‌ها</span><span class="icon-star-empty tabs-icon"></span>',
             action: () => {
                 router.push({ name: 'starred-discovery' })
             }

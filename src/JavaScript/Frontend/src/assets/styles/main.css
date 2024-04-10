@@ -16,7 +16,7 @@ h3 {
 
 .main-container {
   margin: 0 auto;
-  width: 924px;
+  max-width: 924px;
 }
 
 .tabs-container {
@@ -64,6 +64,7 @@ h3 {
 .content-edit-btn {
   width: 22px;
   font-size: 12px;
+  opacity: 60%;
   margin: 0 5px;
   cursor: pointer;
 }

@@ -1,5 +1,6 @@
 <script setup>
 import { RouterLink, RouterView, useRouter } from 'vue-router';
+import { onMounted } from 'vue';
 import Header from './components/Header.vue'
 import Tabs from "./components/Tabs.vue";
 import { useTabsStore } from './stores/useTabsStore.js'
@@ -10,7 +11,7 @@ const store = useTabsStore();
 <template>
   <Header />
   <h3 class="home-headline" static-content="homepage-headline">بلافاصله کد، یادداشت و قطعه‌های کد را به اشتراک بگذارید.</h3>
-    <h3 class="home-tabs-title">کاوش پاره‌ها <span class="icon-code-outline"></span></h3>
+    <h3 class="home-tabs-title"><span static-content="homepage-discover">کاوش پاره‌ها</span><span class="icon-code-outline"></span></h3>
     <div class="tabs-container">
         <Tabs
             class="tabs"

@@ -23,10 +23,16 @@ namespace ParehNegar.WebApi.Controllers.Contents
                 return await unitOfWork.GetContentHelper().AddContentWithKey(request);
 
             var updateResponse = await unitOfWork.GetContentHelper().UpdateContentWithKey(request);
-            if (!updateResponse.IsSuccess)
-                return updateResponse.ToContract();
+            return !updateResponse.IsSuccess ? updateResponse.ToContract() : updateResponse;
+        }
+        
+        [HttpPost]
+        public async Task<MessageContract> AddBulkContentWithKey(List<AddContentWithKeyRequestContract> request)
+        {
+            List<Task<MessageContract>> tasks = [];
+            tasks.AddRange(request.Select(req => AddContentWithKey(req)));
 
-            return updateResponse;
+            return (await Task.WhenAll(tasks)).All(x => x.IsSuccess);
         }
 
         [HttpPost]
@@ -41,8 +47,7 @@ namespace ParehNegar.WebApi.Controllers.Contents
             var categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();
             ContentCategoryContract category = await categoryLogic.GetByAsync(x => x.Key.Equals(request.Key), q => q.Include(x => x.Contents)).AsCheckedResult(x => x.Result);
 
-            var response = await categoryLogic.HardDeleteByIdAsync(category.Id);
-            return response.IsSuccess;
+            return (await categoryLogic.HardDeleteByIdAsync(category.Id)).IsSuccess;
         }
     }
 }
