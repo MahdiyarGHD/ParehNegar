@@ -39,6 +39,48 @@ export default class ContentApi {
     }
 
     /**
+     * Callback function to receive the result of the apiContentAddBulkContentWithKeyPost operation.
+     * @callback moduleapi/ContentApi~apiContentAddBulkContentWithKeyPostCallback
+     * @param {String} error Error message, if any.
+     * @param {module:model/MessageContract{ data The data returned by the service call.
+     * @param {String} response The complete HTTP response.
+     */
+
+    /**
+     * @param {Object} opts Optional parameters
+     * @param {Array.<module:model/AddContentWithKeyRequestContract>} opts.body 
+     * @param {module:api/ContentApi~apiContentAddBulkContentWithKeyPostCallback} callback The callback function, accepting three arguments: error, data, response
+     * data is of type: {@link <&vendorExtensions.x-jsdoc-type>}
+     */
+    apiContentAddBulkContentWithKeyPost(opts, callback) {
+      opts = opts || {};
+      let postBody = opts['body'];
+
+      let pathParams = {
+        
+      };
+      let queryParams = {
+        
+      };
+      let headerParams = {
+        
+      };
+      let formParams = {
+        
+      };
+
+      let authNames = ['Bearer'];
+      let contentTypes = ['application/json', 'text/json', 'application/_*+json'];
+      let accepts = ['text/plain', 'application/json', 'text/json'];
+      let returnType = MessageContract;
+
+      return this.apiClient.callApi(
+        '/api/Content/AddBulkContentWithKey', 'POST',
+        pathParams, queryParams, headerParams, formParams, postBody,
+        authNames, contentTypes, accepts, returnType, callback
+      );
+    }
+    /**
      * Callback function to receive the result of the apiContentAddContentWithKeyPost operation.
      * @callback moduleapi/ContentApi~apiContentAddContentWithKeyPostCallback
      * @param {String} error Error message, if any.

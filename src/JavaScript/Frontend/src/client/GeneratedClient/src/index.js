@@ -14,13 +14,17 @@
  */
 import ApiClient from './ApiClient';
 import AddContentWithKeyRequestContract from './model/AddContentWithKeyRequestContract';
+import ContentCategoryContract from './model/ContentCategoryContract';
+import ContentCategoryContractListMessageContract from './model/ContentCategoryContractListMessageContract';
 import ContentCategoryResponseContract from './model/ContentCategoryResponseContract';
+import ContentContract from './model/ContentContract';
 import ContentResponseContract from './model/ContentResponseContract';
 import ContentResponseContractMessageContract from './model/ContentResponseContractMessageContract';
 import DeleteByKeyRequestContract from './model/DeleteByKeyRequestContract';
 import ErrorContract from './model/ErrorContract';
 import FailedReasonType from './model/FailedReasonType';
 import GetByLanguageRequestContract from './model/GetByLanguageRequestContract';
+import LanguageContract from './model/LanguageContract';
 import LanguageDataContract from './model/LanguageDataContract';
 import LanguageResponseContract from './model/LanguageResponseContract';
 import MessageContract from './model/MessageContract';
@@ -28,6 +32,7 @@ import ServiceDetailsContract from './model/ServiceDetailsContract';
 import SuccessContract from './model/SuccessContract';
 import ValidationContract from './model/ValidationContract';
 import ContentApi from './api/ContentApi';
+import HomeApi from './api/HomeApi';
 
 /**
 * Object.<br>
@@ -74,10 +79,28 @@ export {
     AddContentWithKeyRequestContract,
 
     /**
+     * The ContentCategoryContract model constructor.
+     * @property {module:model/ContentCategoryContract}
+     */
+    ContentCategoryContract,
+
+    /**
+     * The ContentCategoryContractListMessageContract model constructor.
+     * @property {module:model/ContentCategoryContractListMessageContract}
+     */
+    ContentCategoryContractListMessageContract,
+
+    /**
      * The ContentCategoryResponseContract model constructor.
      * @property {module:model/ContentCategoryResponseContract}
      */
     ContentCategoryResponseContract,
+
+    /**
+     * The ContentContract model constructor.
+     * @property {module:model/ContentContract}
+     */
+    ContentContract,
 
     /**
      * The ContentResponseContract model constructor.
@@ -114,6 +137,12 @@ export {
      * @property {module:model/GetByLanguageRequestContract}
      */
     GetByLanguageRequestContract,
+
+    /**
+     * The LanguageContract model constructor.
+     * @property {module:model/LanguageContract}
+     */
+    LanguageContract,
 
     /**
      * The LanguageDataContract model constructor.
@@ -155,5 +184,11 @@ export {
     * The ContentApi service constructor.
     * @property {module:api/ContentApi}
     */
-    ContentApi
+    ContentApi,
+
+    /**
+    * The HomeApi service constructor.
+    * @property {module:api/HomeApi}
+    */
+    HomeApi
 };

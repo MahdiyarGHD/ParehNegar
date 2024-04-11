@@ -17,6 +17,7 @@ onMounted(() => {
     button.id = `edit-content-btn__${element.getAttribute("static-content")}`;
     
     button.addEventListener('click', (ele) => {
+      
       if(document.getElementById(`edit-content-input__${element.getAttribute("static-content")}`) == undefined) {
         const textarea = document.createElement("textarea");
         contentApi.apiContentGetByLanguagePost({
@@ -24,7 +25,7 @@ onMounted(() => {
             key: element.getAttribute("static-content"),
             language: ""
           }
-        }, (err, response) => textarea.innerHTML = response?.result?.data ?? "")
+        }, (err, response) => textarea.innerHTML = decodeData(response?.result?.data) ?? "")
 
         textarea.style.position = "absolute";
         textarea.style.top = rect.top + "px"; 
@@ -52,7 +53,7 @@ onMounted(() => {
               ]
             }
           }, () => {
-            element.innerHTML = textarea.value
+            element.innerHTML = decodeData(textarea.value)
             saveButton.remove();
             textarea.remove();
           })
@@ -70,9 +71,16 @@ onMounted(() => {
             key: element.getAttribute("static-content"),
             language: ""
           }
-    }, (err, response) => element.innerHTML = response?.result?.data ?? element.getAttribute("static-content"))
+    }, (err, response) => element.innerHTML = decodeData(response?.result?.data) ?? element.getAttribute("static-content"))
   });
 })
+
+const decodeData = (text) => {
+  return text.replace(/\\u([0-9a-fA-F]{4})/g, (match, charCode) => {
+   return String.fromCharCode(parseInt(charCode, 16));
+  })
+}
+
 </script>
 
 <template></template>

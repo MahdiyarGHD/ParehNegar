@@ -34,6 +34,27 @@
 
   describe('(package)', function() {
     describe('ContentApi', function() {
+      describe('apiContentAddBulkContentWithKeyPost', function() {
+        it('should call apiContentAddBulkContentWithKeyPost successfully', function(done) {
+          // TODO: uncomment, update parameter values for apiContentAddBulkContentWithKeyPost call and complete the assertions
+          /*
+          var opts = {};
+
+          instance.apiContentAddBulkContentWithKeyPost(opts, function(error, data, response) {
+            if (error) {
+              done(error);
+              return;
+            }
+            // TODO: update response assertions
+            expect(data).to.be.a(ParehNegarwebApi.MessageContract);
+
+            done();
+          });
+          */
+          // TODO: uncomment and complete method invocation above, then delete this line and the next:
+          done();
+        });
+      });
       describe('apiContentAddContentWithKeyPost', function() {
         it('should call apiContentAddContentWithKeyPost successfully', function(done) {
           // TODO: uncomment, update parameter values for apiContentAddContentWithKeyPost call and complete the assertions

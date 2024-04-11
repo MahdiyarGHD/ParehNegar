@@ -79,7 +79,7 @@ Bearer.apiKey = "YOUR API KEY"
 
 var api = new ParehNegarwebApi.ContentApi()
 var opts = { 
-  'body': new ParehNegarwebApi.AddContentWithKeyRequestContract() // {AddContentWithKeyRequestContract} 
+  'body': [new ParehNegarwebApi.AddContentWithKeyRequestContract()] // {[AddContentWithKeyRequestContract]} 
 };
 var callback = function(error, data, response) {
   if (error) {
@@ -88,7 +88,7 @@ var callback = function(error, data, response) {
     console.log('API called successfully. Returned data: ' + data);
   }
 };
-api.apiContentAddContentWithKeyPost(opts, callback);
+api.apiContentAddBulkContentWithKeyPost(opts, callback);
 ```
 
 ## Documentation for API Endpoints
@@ -97,20 +97,26 @@ All URIs are relative to */*
 
 Class | Method | HTTP request | Description
 ------------ | ------------- | ------------- | -------------
+*ParehNegarwebApi.ContentApi* | [**apiContentAddBulkContentWithKeyPost**](docs/ContentApi.md#apiContentAddBulkContentWithKeyPost) | **POST** /api/Content/AddBulkContentWithKey | 
 *ParehNegarwebApi.ContentApi* | [**apiContentAddContentWithKeyPost**](docs/ContentApi.md#apiContentAddContentWithKeyPost) | **POST** /api/Content/AddContentWithKey | 
 *ParehNegarwebApi.ContentApi* | [**apiContentDeleteByKeyPost**](docs/ContentApi.md#apiContentDeleteByKeyPost) | **POST** /api/Content/DeleteByKey | 
 *ParehNegarwebApi.ContentApi* | [**apiContentGetByLanguagePost**](docs/ContentApi.md#apiContentGetByLanguagePost) | **POST** /api/Content/GetByLanguage | 
+*ParehNegarwebApi.HomeApi* | [**apiHomeGetAllContentsGet**](docs/HomeApi.md#apiHomeGetAllContentsGet) | **GET** /api/Home/GetAllContents | 
 
 ## Documentation for Models
 
  - [ParehNegarwebApi.AddContentWithKeyRequestContract](docs/AddContentWithKeyRequestContract.md)
+ - [ParehNegarwebApi.ContentCategoryContract](docs/ContentCategoryContract.md)
+ - [ParehNegarwebApi.ContentCategoryContractListMessageContract](docs/ContentCategoryContractListMessageContract.md)
  - [ParehNegarwebApi.ContentCategoryResponseContract](docs/ContentCategoryResponseContract.md)
+ - [ParehNegarwebApi.ContentContract](docs/ContentContract.md)
  - [ParehNegarwebApi.ContentResponseContract](docs/ContentResponseContract.md)
  - [ParehNegarwebApi.ContentResponseContractMessageContract](docs/ContentResponseContractMessageContract.md)
  - [ParehNegarwebApi.DeleteByKeyRequestContract](docs/DeleteByKeyRequestContract.md)
  - [ParehNegarwebApi.ErrorContract](docs/ErrorContract.md)
  - [ParehNegarwebApi.FailedReasonType](docs/FailedReasonType.md)
  - [ParehNegarwebApi.GetByLanguageRequestContract](docs/GetByLanguageRequestContract.md)
+ - [ParehNegarwebApi.LanguageContract](docs/LanguageContract.md)
  - [ParehNegarwebApi.LanguageDataContract](docs/LanguageDataContract.md)
  - [ParehNegarwebApi.LanguageResponseContract](docs/LanguageResponseContract.md)
  - [ParehNegarwebApi.MessageContract](docs/MessageContract.md)

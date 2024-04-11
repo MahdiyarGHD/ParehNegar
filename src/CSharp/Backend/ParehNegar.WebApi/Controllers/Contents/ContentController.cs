@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ParehNegar.Database.Database.Entities.Contents;
+using ParehNegar.Domain.BaseModels;
 using ParehNegar.Domain.Contracts.Contents;
 using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Helpers;
