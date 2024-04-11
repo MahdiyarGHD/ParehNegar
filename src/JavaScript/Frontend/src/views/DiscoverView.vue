@@ -6,6 +6,5 @@ store.homePageActiveTab = 1;
 </script>
 
 <template>
-    Silence is silver
+    Tab 1
 </template>
-

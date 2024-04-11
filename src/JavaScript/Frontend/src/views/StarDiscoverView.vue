@@ -5,6 +5,6 @@ store.homePageActiveTab = 3;
 </script>
 
 <template>
-    Silence can be bronze
+    Tab 3
 </template>
 

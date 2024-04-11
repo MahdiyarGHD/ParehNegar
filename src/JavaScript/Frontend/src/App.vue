@@ -2,6 +2,7 @@
 import { RouterLink, RouterView, useRouter } from 'vue-router';
 import { onMounted } from 'vue';
 import Header from './components/Header.vue'
+import Footer from './components/Footer.vue'
 import Tabs from "./components/Tabs.vue";
 import { useTabsStore } from './stores/useTabsStore.js'
 import StaticContents from './components/StaticContents.vue';
@@ -23,6 +24,7 @@ const store = useTabsStore();
       <RouterView />
     </div>
     
+    <Footer/>
     <StaticContents/>
 </template>
 

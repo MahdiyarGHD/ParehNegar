@@ -5,4 +5,5 @@ store.homePageActiveTab = 2;
 </script>
 
 <template>
+    Tab 2
 </template>
