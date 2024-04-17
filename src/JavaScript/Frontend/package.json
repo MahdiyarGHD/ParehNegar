@@ -7,7 +7,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "apply-static-contents": "node ./src/scripts/applyStaticContents.js"
+    "apply-static-contents": "node ./src/scripts/applyStaticContents.js",
+    "generate-swagger-client": "java -jar D:\\swagger-codegen-cli-3.0.54.jar generate -i http://localhost:6901/swagger/v1/swagger.json -l javascript -o ./src/client/GeneratedClient"
   },
   "dependencies": {
     "esm": "^3.2.25",
