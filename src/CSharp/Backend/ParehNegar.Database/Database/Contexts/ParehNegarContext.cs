@@ -7,31 +7,35 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using ParehNegar.Database.Entities.Authentications;
 
-namespace ParehNegar.Database.Contexts
+namespace ParehNegar.Database.Contexts;
+
+public sealed class ParehNegarContext : DbContext
 {
-    public sealed class ParehNegarContext : DbContext
+    private DatabaseBuilder _builder;
+    public ParehNegarContext(DatabaseBuilder builder) 
     {
-        private DatabaseBuilder _builder;
-        public ParehNegarContext(DatabaseBuilder builder) 
-        {
             _builder = builder;
-        }
+    }
 
-        // Contents
-        public DbSet<ContentCategoryEntity> ContentCategories { get; set; }
-        public DbSet<ContentEntity> Contents { get; set; }
-        public DbSet<LanguageEntity> Languages { get; set; }
+    // Contents
+    public DbSet<ContentCategoryEntity> ContentCategories { get; set; }
+    public DbSet<ContentEntity> Contents { get; set; }
+    public DbSet<LanguageEntity> Languages { get; set; }
 
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
+    // Authentications
+    public DbSet<UserEntity> Users { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
             _builder?.OnConfiguring(optionsBuilder);
 
             base.OnConfiguring(optionsBuilder);
         }
 
-        protected override void OnModelCreating(ModelBuilder modelBuilder)
-        {
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
 
             modelBuilder.Entity<ContentCategoryEntity>(model =>
             {
@@ -73,7 +77,22 @@ namespace ParehNegar.Database.Contexts
                 model.HasKey(x => x.Id);
                 model.HasIndex(x => x.Name).IsUnique();
             });
+            
+            modelBuilder.Entity<UserRoleEntity>(model =>
+            {
+                model.HasKey(ur => new { ur.UserId, ur.RoleId });
+                
+                model
+                    .HasOne(ur => ur.User)
+                    .WithMany(u => u.UserRoles)
+                    .HasForeignKey(ur => ur.UserId);
+                
+                model
+                    .HasOne(ur => ur.Role)
+                    .WithMany(r => r.UserRoles)
+                    .HasForeignKey(ur => ur.RoleId);
+            });
+            
             base.OnModelCreating(modelBuilder);
-        }
     }
 }

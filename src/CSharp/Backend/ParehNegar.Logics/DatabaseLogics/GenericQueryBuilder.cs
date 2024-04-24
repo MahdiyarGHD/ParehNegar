@@ -10,21 +10,21 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Logics.DatabaseLogics
-{
-    public class GenericQueryBuilder<TEntity, TId> where TEntity : class, IIdSchema<TId> where TId : new()
-    {
-        private readonly DbContext _context;
+namespace ParehNegar.Logics.DatabaseLogics;
 
-        public GenericQueryBuilder(DbContext context)
-        {
+public class GenericQueryBuilder<TEntity, TId> where TEntity : class, IIdSchema<TId> where TId : new()
+{
+    private readonly DbContext _context;
+
+    public GenericQueryBuilder(DbContext context)
+    {
             _context = context;
         }
 
-        public async Task<IEnumerable<TEntity>> GetAllAsync(
-            Expression<Func<TEntity, bool>> filter = null,
-            params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
-        {
+    public async Task<IEnumerable<TEntity>> GetAllAsync(
+        Expression<Func<TEntity, bool>> filter = null,
+        params Func<IQueryable<TEntity>, IQueryable<TEntity>>[] expressions)
+    {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
             if (filter is null)
@@ -39,8 +39,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return await query.ToListAsync();
         }
 
-        public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter = null, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
-        {
+    public async Task<TEntity> GetByAsync(Expression<Func<TEntity, bool>> filter = null, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
+    {
             IQueryable<TEntity> query = _context.Set<TEntity>();
 
             query = filter is not null ? query.Where(filter) : query;
@@ -52,8 +52,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return await query.FirstOrDefaultAsync();
         }
 
-        public async Task<TEntity> GetByIdAsync(object id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
-        {
+    public async Task<TEntity> GetByIdAsync(object id, params Expression<Func<IQueryable<TEntity>, IQueryable<TEntity>>>[] expressions)
+    {
             var entity = await _context.Set<TEntity>().FindAsync(id);
 
             if (expressions != null)
@@ -69,8 +69,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return entity;
         }
 
-        public async Task<TEntity> AddAsync(TEntity entity)
-        {
+    public async Task<TEntity> AddAsync(TEntity entity)
+    {
             if (entity is IDateTimeSchema dateTimeSchema)
             {
                 dateTimeSchema.CreationDateTime = DateTime.Now;
@@ -88,14 +88,14 @@ namespace ParehNegar.Logics.DatabaseLogics
             return entity;
         }
 
-        public async Task AddBulkAsync(IEnumerable<TEntity> entities)
-        {
+    public async Task AddBulkAsync(IEnumerable<TEntity> entities)
+    {
             await _context.Set<TEntity>().AddRangeAsync(entities);
             await _context.SaveChangesAsync();
         }
 
-        public async Task<TEntity> UpdateAsync(TEntity entity, bool allowSchemaUpdate = true)
-        {
+    public async Task<TEntity> UpdateAsync(TEntity entity, bool allowSchemaUpdate = true)
+    {
             var entry = _context.Entry(entity);
             entry.State = EntityState.Modified;
 
@@ -115,8 +115,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return entity;
         }
 
-        public async Task<TEntity> UpdateChangedValuesOnlyAsync(TEntity newEntity)
-        {
+    public async Task<TEntity> UpdateChangedValuesOnlyAsync(TEntity newEntity)
+    {
             TEntity existingEntity = await GetByIdAsync(newEntity.Id) ?? throw new KeyNotFoundException("Entity not found");
             var updatedEntity = existingEntity;
             var properties = typeof(TEntity).GetProperties();
@@ -138,8 +138,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return updatedEntity;
         }
 
-        public async Task UpdateBulkAsync(IEnumerable<TEntity> entities, bool allowSchemaUpdate = true)
-        {
+    public async Task UpdateBulkAsync(IEnumerable<TEntity> entities, bool allowSchemaUpdate = true)
+    {
             foreach (var entity in entities)
             {
                 var entry = _context.Entry(entity);
@@ -161,8 +161,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             await _context.SaveChangesAsync();
         }
 
-        public async Task<TEntity> SoftDeleteByIdAsync(TId id)
-        {
+    public async Task<TEntity> SoftDeleteByIdAsync(TId id)
+    {
             TEntity entity = await GetByIdAsync(id);
             if (entity == null)
                 return null;
@@ -180,8 +180,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             }
         }
 
-        public async Task<TEntity> HardDeleteByIdAsync(TId id)
-        {
+    public async Task<TEntity> HardDeleteByIdAsync(TId id)
+    {
             TEntity entity = await GetByIdAsync(id);
             if (entity == null)
                 return null;
@@ -191,8 +191,8 @@ namespace ParehNegar.Logics.DatabaseLogics
             return entity;
         }
 
-        public async Task<int> BulkSoftDeleteByIdAsync(IEnumerable<TId> ids)
-        {
+    public async Task<int> BulkSoftDeleteByIdAsync(IEnumerable<TId> ids)
+    {
             var entities = await _context.Set<TEntity>().Where(e => ids.Contains(e.Id)).ToListAsync();
             int deletedCount = 0;
 
@@ -210,13 +210,11 @@ namespace ParehNegar.Logics.DatabaseLogics
             return deletedCount;
         }
 
-        public async Task<int> BulkHardDeleteByIdAsync(IEnumerable<TId> ids)
-        {
+    public async Task<int> BulkHardDeleteByIdAsync(IEnumerable<TId> ids)
+    {
             var entities = await _context.Set<TEntity>().Where(e => ids.Contains(e.Id)).ToListAsync();
             _context.Set<TEntity>().RemoveRange(entities);
             int deletedCount = await _context.SaveChangesAsync();
             return deletedCount;
         }
-    }
-
 }

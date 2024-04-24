@@ -4,10 +4,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Domain.Contracts.Contents
+namespace ParehNegar.Domain.Contracts.Contents;
+
+public class GetAllByKeyRequestContract
 {
-    public class GetAllByKeyRequestContract
-    {
-        public string Key { get; set; }
-    }
+    public string Key { get; set; }
 }

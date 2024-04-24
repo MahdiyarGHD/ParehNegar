@@ -9,15 +9,15 @@ using ParehNegar.Logics.DatabaseLogics;
 using ParehNegar.Logics.Helpers;
 using ParehNegar.Logics.Logics;
 
-namespace ParehNegar.WebApi.Controllers.Contents
+namespace ParehNegar.WebApi.Controllers.Contents;
+
+[Route("api/[controller]/[action]")]
+[ApiController]
+public class ContentController(IUnitOfWork unitOfWork) : ControllerBase
 {
-    [Route("api/[controller]/[action]")]
-    [ApiController]
-    public class ContentController(IUnitOfWork unitOfWork) : ControllerBase
+    [HttpPost]
+    public async Task<MessageContract> AddContentWithKey(AddContentWithKeyRequestContract request)
     {
-        [HttpPost]
-        public async Task<MessageContract> AddContentWithKey(AddContentWithKeyRequestContract request)
-        {
             var categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();
             var category = await categoryLogic.GetByAsync(x => x.Key.Equals(request.Key));
             if(!category.IsSuccess)
@@ -27,28 +27,27 @@ namespace ParehNegar.WebApi.Controllers.Contents
             return !updateResponse.IsSuccess ? updateResponse.ToContract() : updateResponse;
         }
         
-        [HttpPost]
-        public async Task<MessageContract> AddBulkContentWithKey(List<AddContentWithKeyRequestContract> request)
-        {
+    [HttpPost]
+    public async Task<MessageContract> AddBulkContentWithKey(List<AddContentWithKeyRequestContract> request)
+    {
             List<Task<MessageContract>> tasks = [];
             tasks.AddRange(request.Select(req => AddContentWithKey(req)));
 
             return (await Task.WhenAll(tasks)).All(x => x.IsSuccess);
         }
 
-        [HttpPost]
-        public async Task<MessageContract<ContentResponseContract>> GetByLanguage(GetByLanguageRequestContract request)
-        {
+    [HttpPost]
+    public async Task<MessageContract<ContentResponseContract>> GetByLanguage(GetByLanguageRequestContract request)
+    {
             return await unitOfWork.GetContentHelper().GetByLanguage(request);
         }
 
-        [HttpPost]
-        public async Task<MessageContract> DeleteByKey(DeleteByKeyRequestContract request)
-        {
+    [HttpPost]
+    public async Task<MessageContract> DeleteByKey(DeleteByKeyRequestContract request)
+    {
             var categoryLogic = unitOfWork.GetLongContractLogic<ContentCategoryEntity, ContentCategoryContract>();
             ContentCategoryContract category = await categoryLogic.GetByAsync(x => x.Key.Equals(request.Key), q => q.Include(x => x.Contents)).AsCheckedResult(x => x.Result);
 
             return (await categoryLogic.HardDeleteByIdAsync(category.Id)).IsSuccess;
         }
-    }
 }

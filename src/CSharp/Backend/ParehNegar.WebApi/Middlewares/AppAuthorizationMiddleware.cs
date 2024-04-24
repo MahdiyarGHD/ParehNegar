@@ -4,28 +4,28 @@ using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 using System.Text.Json;
 
-namespace ParehNegar.WebApi.Middlewares
-{
-    // [https://github.com/EasyMicroservices/Cores]
-    public class AppAuthorizationMiddleware
-    {
-        private readonly RequestDelegate _next;
+namespace ParehNegar.WebApi.Middlewares;
 
-        //
-        // Parameters:
-        //   next:
-        public AppAuthorizationMiddleware(RequestDelegate next)
-        {
+// [https://github.com/EasyMicroservices/Cores]
+public class AppAuthorizationMiddleware
+{
+    private readonly RequestDelegate _next;
+
+    //
+    // Parameters:
+    //   next:
+    public AppAuthorizationMiddleware(RequestDelegate next)
+    {
             _next = next;
         }
 
-        //
-        // Parameters:
-        //   httpContext:
-        //
-        //   baseUnitOfWork:
-        public async Task Invoke(HttpContext httpContext)
-        {
+    //
+    // Parameters:
+    //   httpContext:
+    //
+    //   baseUnitOfWork:
+    public async Task Invoke(HttpContext httpContext)
+    {
             try
             {
                 //IAuthorization authorization = baseUnitOfWork.GetAuthorization();
@@ -71,22 +71,22 @@ namespace ParehNegar.WebApi.Middlewares
             }
         }
 
-        //
-        // Parameters:
-        //   context:
-        internal static Task ExceptionHandler(HttpContext context)
-        {
+    //
+    // Parameters:
+    //   context:
+    internal static Task ExceptionHandler(HttpContext context)
+    {
             Exception exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
             return ExceptionHandler(context, exception);
         }
 
-        //
-        // Parameters:
-        //   context:
-        //
-        //   exception:
-        internal static Task ExceptionHandler(HttpContext context, Exception exception)
-        {
+    //
+    // Parameters:
+    //   context:
+    //
+    //   exception:
+    internal static Task ExceptionHandler(HttpContext context, Exception exception)
+    {
             context.Response.ContentType = "application/json";
             context.Response.StatusCode = 200;
             MessageContract messageContract;
@@ -110,5 +110,4 @@ namespace ParehNegar.WebApi.Middlewares
             string text = JsonSerializer.Serialize(messageContract);
             return context.Response.WriteAsync(text);
         }
-    }
 }

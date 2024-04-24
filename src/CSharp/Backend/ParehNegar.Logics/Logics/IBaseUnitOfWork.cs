@@ -12,25 +12,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Logics.Logics
-{
-    public interface IBaseUnitOfWork
-    {
-        public ValueTask DisposeAsync();
-        public IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-            where TResponseContract : class
-            where TId : new()
-            where TEntity : class, IIdSchema<TId>;
-        public IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
-            where TContract : class
-            where TEntity : class, IIdSchema<long>;
-        public Logic<TEntity, TId> GetLogic<TEntity, TId>() where TId : new() where TEntity : class, IIdSchema<TId>;
+namespace ParehNegar.Logics.Logics;
 
-        IConfiguration GetConfiguration();
-        string GetValue(string key);
-        public ContentLanguageHelper GetContentLanguageHelper();
-        IMapperProvider GetMapper();
-        DbContext GetDbContext();
-        ITextSerializationProvider GetTextSerialization();
-    }
+public interface IBaseUnitOfWork
+{
+    public ValueTask DisposeAsync();
+    public IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+        where TResponseContract : class
+        where TId : new()
+        where TEntity : class, IIdSchema<TId>;
+    public IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
+        where TContract : class
+        where TEntity : class, IIdSchema<long>;
+    public Logic<TEntity, TId> GetLogic<TEntity, TId>() where TId : new() where TEntity : class, IIdSchema<TId>;
+
+    IConfiguration GetConfiguration();
+    string GetValue(string key);
+    public ContentLanguageHelper GetContentLanguageHelper();
+    IMapperProvider GetMapper();
+    DbContext GetDbContext();
+    ITextSerializationProvider GetTextSerialization();
 }

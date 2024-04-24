@@ -13,15 +13,15 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Logics.Helpers
+namespace ParehNegar.Logics.Helpers;
+
+public class ContentLanguageHelper(IUnitOfWork unitOfWork)
 {
-    public class ContentLanguageHelper(IUnitOfWork unitOfWork)
+    private readonly ContentHelper _contentHelper = unitOfWork.GetContentHelper();
+
+
+    public async Task ResolveContentAllLanguage(IEnumerable items)
     {
-        private readonly ContentHelper _contentHelper = unitOfWork.GetContentHelper();
-
-
-        public async Task ResolveContentAllLanguage(IEnumerable items)
-        {
             if (items == null)
                 return;
             List<Task> tasks = new List<Task>();
@@ -32,8 +32,8 @@ namespace ParehNegar.Logics.Helpers
             await Task.WhenAll(tasks);
         }
 
-        public async Task ResolveContentAllLanguage(object contract)
-        {
+    public async Task ResolveContentAllLanguage(object contract)
+    {
             if (contract == null)
                 return;
             var identifierAttr = contract.GetType().GetCustomAttribute(typeof(ContentIdentifierAttribute)) as ContentIdentifierAttribute;
@@ -79,8 +79,8 @@ namespace ParehNegar.Logics.Helpers
             }
         }
 
-        public async Task ResolveContentLanguage(IEnumerable items, string language)
-        {
+    public async Task ResolveContentLanguage(IEnumerable items, string language)
+    {
             if (items == null)
                 return;
             List<Task> tasks = new List<Task>();
@@ -91,13 +91,13 @@ namespace ParehNegar.Logics.Helpers
             await Task.WhenAll(tasks);
         }
 
-        public Task ResolveContentLanguage(object contract, string language)
-        {
+    public Task ResolveContentLanguage(object contract, string language)
+    {
             return ResolveContentLanguage(contract, language, new HashSet<object>());
         }
 
-        async Task ResolveContentLanguage(object contract, string language, HashSet<object> mappedItems)
-        {
+    async Task ResolveContentLanguage(object contract, string language, HashSet<object> mappedItems)
+    {
             if (contract.Equals(default) || mappedItems.Contains(contract))
                 return;
             var type = contract.GetType();
@@ -151,18 +151,18 @@ namespace ParehNegar.Logics.Helpers
             }
         }
 
-        bool IsClass(Type type)
-        {
+    bool IsClass(Type type)
+    {
             return type.GetTypeInfo().IsClass && typeof(string) != type && typeof(char[]) != type;
         }
 
-        public Task<MessageContract<ContentCategoryResponseContract>> AddToContentLanguage(object item)
-        {
+    public Task<MessageContract<ContentCategoryResponseContract>> AddToContentLanguage(object item)
+    {
             return SaveToContentLanguage(item, AddToContent);
         }
 
-        public Task<List<Task<MessageContract<ContentCategoryResponseContract>>>> AddToContentLanguage(IEnumerable items)
-        {
+    public Task<List<Task<MessageContract<ContentCategoryResponseContract>>>> AddToContentLanguage(IEnumerable items)
+    {
             List<Task<MessageContract<ContentCategoryResponseContract>>> tasks = new List<Task<MessageContract<ContentCategoryResponseContract>>>();
             foreach (var item in items)
             {
@@ -171,13 +171,13 @@ namespace ParehNegar.Logics.Helpers
             return Task.FromResult(tasks);
         }
 
-        public Task<MessageContract> UpdateToContentLanguage(object item)
-        {
+    public Task<MessageContract> UpdateToContentLanguage(object item)
+    {
             return SaveToContentLanguageUpdate(item, UpdateToContent);
         }
 
-        public async Task UpdateToContentLanguage(IEnumerable items)
-        {
+    public async Task UpdateToContentLanguage(IEnumerable items)
+    {
             List<Task> tasks = new List<Task>();
             foreach (var item in items)
             {
@@ -186,8 +186,8 @@ namespace ParehNegar.Logics.Helpers
             await Task.WhenAll(tasks);
         }
 
-        async Task<MessageContract<ContentCategoryResponseContract>> SaveToContentLanguage(object item, Func<(string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[], Task<MessageContract<ContentCategoryResponseContract>>> saveData)
-        {
+    async Task<MessageContract<ContentCategoryResponseContract>> SaveToContentLanguage(object item, Func<(string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[], Task<MessageContract<ContentCategoryResponseContract>>> saveData)
+    {
             if (item.Equals(default))
                 return new MessageContract<ContentCategoryResponseContract>()
                 {
@@ -226,8 +226,8 @@ namespace ParehNegar.Logics.Helpers
             };
         }
 
-        void LogContract(ErrorContract contract)
-        {
+    void LogContract(ErrorContract contract)
+    {
             Console.WriteLine($"Content Error Message: {contract.Message}");
             Console.WriteLine($"Content Error EndUserMessage: {contract.EndUserMessage}");
             Console.WriteLine($"Content Error Details: {contract.Details}");
@@ -235,8 +235,8 @@ namespace ParehNegar.Logics.Helpers
             Console.WriteLine($"Content Error MethodName: {contract.ServiceDetails?.MethodName}");
         }
 
-        async Task<MessageContract> SaveToContentLanguageUpdate(object item, Func<(string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[], Task<MessageContract>> saveData)
-        {
+    async Task<MessageContract> SaveToContentLanguageUpdate(object item, Func<(string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[], Task<MessageContract>> saveData)
+    {
             if (item.Equals(default))
                 return new MessageContract()
                 {
@@ -274,15 +274,15 @@ namespace ParehNegar.Logics.Helpers
             };
         }
 
-        bool TryGetPropertyName(PropertyInfo property, out string propertyName)
-        {
+    bool TryGetPropertyName(PropertyInfo property, out string propertyName)
+    {
             var contentLanguageAttribute = property.GetCustomAttribute<ContentLanguageAttribute>();
             propertyName = GetPropertyName(property);
             return contentLanguageAttribute != null;
         }
 
-        string GetPropertyName(PropertyInfo property)
-        {
+    string GetPropertyName(PropertyInfo property)
+    {
             var contentLanguageAttribute = property.GetCustomAttribute<ContentLanguageAttribute>();
             if (contentLanguageAttribute != null)
                 return contentLanguageAttribute.PropertyName ?? property.Name;
@@ -290,8 +290,8 @@ namespace ParehNegar.Logics.Helpers
                 return property.Name;
         }
 
-        IEnumerable<LanguageDataContract> Map(IEnumerable objects)
-        {
+    IEnumerable<LanguageDataContract> Map(IEnumerable objects)
+    {
             if (objects != null)
             {
                 foreach (var item in objects)
@@ -311,8 +311,8 @@ namespace ParehNegar.Logics.Helpers
             }
         }
 
-        async Task<MessageContract<ContentCategoryResponseContract>> AddToContent(string uniqueIdentity, string name, IEnumerable<LanguageDataContract> languages)
-        {
+    async Task<MessageContract<ContentCategoryResponseContract>> AddToContent(string uniqueIdentity, string name, IEnumerable<LanguageDataContract> languages)
+    {
             var addNames = await _contentHelper.AddContentWithKey(new AddContentWithKeyRequestContract
             {
                 Key = $"{uniqueIdentity}-{name}",
@@ -327,8 +327,8 @@ namespace ParehNegar.Logics.Helpers
         }
 
 
-        async Task<MessageContract<ContentCategoryResponseContract>> AddToContent(params (string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[] items)
-        {
+    async Task<MessageContract<ContentCategoryResponseContract>> AddToContent(params (string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[] items)
+    {
             MessageContract<ContentCategoryResponseContract> result = default;
             foreach (var item in items)
             {
@@ -342,8 +342,8 @@ namespace ParehNegar.Logics.Helpers
             return result;
         }
 
-        async Task<MessageContract> UpdateToContent(string uniqueIdentity, string name, IEnumerable<LanguageDataContract> languages)
-        {
+    async Task<MessageContract> UpdateToContent(string uniqueIdentity, string name, IEnumerable<LanguageDataContract> languages)
+    {
             var addNames = await _contentHelper.UpdateContentWithKey(new AddContentWithKeyRequestContract
             {
                 Key = $"{uniqueIdentity}-{name}",
@@ -357,8 +357,8 @@ namespace ParehNegar.Logics.Helpers
             return addNames;
         }
 
-        async Task<MessageContract> UpdateToContent(params (string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[] items)
-        {
+    async Task<MessageContract> UpdateToContent(params (string UniqueIdentity, string Name, IEnumerable<LanguageDataContract> Languages)[] items)
+    {
             MessageContract result = default;
             foreach (var item in items)
             {
@@ -371,5 +371,4 @@ namespace ParehNegar.Logics.Helpers
             }
             return result;
         }
-    }
 }

@@ -7,34 +7,33 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Database
+namespace ParehNegar.Database;
+
+public class DatabaseBuilder
 {
-    public class DatabaseBuilder
+    private readonly IConfiguration _configuration;
+    public DatabaseBuilder(IConfiguration configuration)
     {
-        private readonly IConfiguration _configuration;
-        public DatabaseBuilder(IConfiguration configuration)
-        {
             _configuration = configuration;
 
         }
 
-        public void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        {
+    public void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
             var entity = GetEntity();
             if (entity.IsSqlServer())
                 optionsBuilder.UseSqlServer(entity.ConnectionString);
             else if (entity.IsInMemory())
-                optionsBuilder.UseInMemoryDatabase("AppTax");
+                optionsBuilder.UseInMemoryDatabase("ParehNegar");
         }
 
-        public DatabaseConfig GetEntity()
-        {
+    public DatabaseConfig GetEntity()
+    {
             return GetDatabases()?.Where((DatabaseConfig x) => !string.IsNullOrEmpty(x.Name)).FirstOrDefault((DatabaseConfig x) => x.Name.Equals("Entity", StringComparison.OrdinalIgnoreCase));
-        }
+    }
 
-        public virtual List<DatabaseConfig> GetDatabases()
-        {
+    public virtual List<DatabaseConfig> GetDatabases()
+    {
             return _configuration?.GetSection("Databases")?.Get<List<DatabaseConfig>>();
         }
-    }
 }

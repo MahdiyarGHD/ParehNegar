@@ -21,46 +21,46 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Logics.Logics
-{
-    public class BaseUnitOfWork : IBaseUnitOfWork
-    {
-        public IServiceProvider ServiceProvider { get; protected set; }
-        public static Type MapperTypeAssembly { get; set; }
+namespace ParehNegar.Logics.Logics;
 
-        public BaseUnitOfWork(IServiceProvider service)
-        {
+public class BaseUnitOfWork : IBaseUnitOfWork
+{
+    public IServiceProvider ServiceProvider { get; protected set; }
+    public static Type MapperTypeAssembly { get; set; }
+
+    public BaseUnitOfWork(IServiceProvider service)
+    {
             service.ThrowIfNull(nameof(service));
             ServiceProvider = service;
         }
 
-        List<object> Disposables { get; set; } = new List<object>();
+    List<object> Disposables { get; set; } = new List<object>();
 
-        T AddDisposable<T>(T data)
-        {
+    T AddDisposable<T>(T data)
+    {
             Disposables.Add(data);
             return data;
         }
 
-        public T GetService<T>()
-        {
+    public T GetService<T>()
+    {
             return ServiceProvider.GetService<T>();
         }
 
-        public ContentLanguageHelper GetContentLanguageHelper()
-        {
+    public ContentLanguageHelper GetContentLanguageHelper()
+    {
             return GetService<ContentLanguageHelper>();
         }
 
-        public virtual async ValueTask DisposeAsync()
-        {
+    public virtual async ValueTask DisposeAsync()
+    {
             InternalSyncDispose();
             await InternalDispose();
             Disposables.Clear();
             ServiceProvider = null;
         }
-        async Task InternalDispose()
-        {
+    async Task InternalDispose()
+    {
             foreach (var item in Disposables)
             {
                 if (item is IAsyncDisposable disposable)
@@ -70,8 +70,8 @@ namespace ParehNegar.Logics.Logics
             }
         }
 
-        void InternalSyncDispose()
-        {
+    void InternalSyncDispose()
+    {
             foreach (var item in Disposables)
             {
                 if (item is IDisposable disposable)
@@ -81,65 +81,65 @@ namespace ParehNegar.Logics.Logics
             }
         }
 
-        public virtual IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-            where TResponseContract : class
-            where TId : new()
-            where TEntity : class, IIdSchema<TId>
-        {
+    public virtual IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+        where TResponseContract : class
+        where TId : new()
+        where TEntity : class, IIdSchema<TId>
+    {
             return GetInternalContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>();
         }
 
-        IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
-            where TResponseContract : class
-            where TId : new()
+    IContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+        where TResponseContract : class
+        where TId : new()
 
-            where TEntity : class, IIdSchema<TId>
-        {
+        where TEntity : class, IIdSchema<TId>
+    {
             return AddDisposable(new ContractLogic<TId, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(this));
         }
 
-        public virtual IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
+    public virtual IContractLogic<long, TEntity, TContract, TContract, TContract> GetLongContractLogic<TEntity, TContract>()
         where TContract : class
         where TEntity : class, IIdSchema<long>
-        {
+    {
             return GetInternalLongContractLogic<TEntity, TContract, TContract, TContract>();
         }
 
-        IContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalLongContractLogic<TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
+    IContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract> GetInternalLongContractLogic<TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>()
         where TResponseContract : class
         where TEntity : class, IIdSchema<long>
-        {
+    {
             return AddDisposable(new ContractLogic<long, TEntity, TCreateRequestContract, TUpdateRequestContract, TResponseContract>(this));
         }
 
-        public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()
-            where TId : new()
-            where TEntity : class, IIdSchema<TId>
-        {
+    public virtual Logic<TEntity, TId> GetLogic<TEntity, TId>()
+        where TId : new()
+        where TEntity : class, IIdSchema<TId>
+    {
             return GetInternalLogic<TEntity, TId>();
         }
 
-        Logic<TEntity, TId> GetInternalLogic<TEntity, TId>()
-            where TId : new()
-            where TEntity : class, IIdSchema<TId>
-        {
+    Logic<TEntity, TId> GetInternalLogic<TEntity, TId>()
+        where TId : new()
+        where TEntity : class, IIdSchema<TId>
+    {
             return AddDisposable(new Logic<TEntity, TId>(GetService<DbContext>()));
         }
 
 
-        public IConfiguration GetConfiguration()
-        {
+    public IConfiguration GetConfiguration()
+    {
             return ServiceProvider.GetService<IConfiguration>();
         }
 
-        public virtual string GetValue(string key)
-        {
+    public virtual string GetValue(string key)
+    {
             IConfiguration config = GetService<IConfiguration>();
             return (key.IsNullOrEmpty() || config == null) ? null : config.GetValue<string>(key);
         }
 
-        public virtual IMapperProvider GetMapper()
-        {
+    public virtual IMapperProvider GetMapper()
+    {
             var mapper = new CompileTimeMapperProvider(new SerializerMapperProvider(new NewtonsoftJsonProvider(new Newtonsoft.Json.JsonSerializerSettings()
             {
                 ReferenceLoopHandling = Newtonsoft.Json.ReferenceLoopHandling.Ignore,
@@ -159,15 +159,14 @@ namespace ParehNegar.Logics.Logics
             return mapper;
         }
 
-        public virtual DbContext GetDbContext()
-        {
+    public virtual DbContext GetDbContext()
+    {
             return GetService<DbContext>();
         }
 
-        public ITextSerializationProvider GetTextSerialization()
-        {
+    public ITextSerializationProvider GetTextSerialization()
+    {
             return GetService<ITextSerializationProvider>();
 
         }
-    }
 }

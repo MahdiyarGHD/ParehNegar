@@ -5,12 +5,11 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ParehNegar.Domain.Contracts.Contents
-{
-    public class LanguageContract : FullAbilityIdSchema<long>
-    {
-        public string Name { get; set; }
+namespace ParehNegar.Domain.Contracts.Contents;
 
-        public List<ContentContract> Contents { get; set; }
-    }
+public class LanguageContract : FullAbilityIdSchema<long>
+{
+    public string Name { get; set; }
+
+    public List<ContentContract> Contents { get; set; }
 }
