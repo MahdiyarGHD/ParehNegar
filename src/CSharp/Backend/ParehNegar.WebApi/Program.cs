@@ -45,17 +45,18 @@ public class Program
                 options.SetIsOriginAllowed((string origin) => new Uri(origin).Host == "localhost").AllowAnyHeader().AllowAnyMethod();
         });
 
-        webApplication.UseRouting();
-        webApplication.UseAuthentication();
         webApplication.UseExceptionHandler();
+
+        webApplication.UseMiddleware<TokenFromCookieMiddleware>(); 
+        webApplication.UseAuthentication();
+        webApplication.UseMiddleware<AppAuthorizationMiddleware>(); 
+        webApplication.UseAuthorization(); 
 
         webApplication.MapControllers();
 
         webApplication.UseSwagger();
         webApplication.UseSwaggerUI();
-        webApplication.UseMiddleware<AppAuthorizationMiddleware>();
-
-
+        
         DbContext context = webApplication.Services.GetService<DbContext>();
         if (context.Database.IsInMemory())
             await context.Database.EnsureCreatedAsync();
@@ -82,7 +83,7 @@ public class Program
                     IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(app.Configuration["Authorization:Jwt:Key"]))
                 };
             });
-            
+
         app.Services.AddControllers().AddJsonOptions(x =>
             x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles);
         app.Services.AddEndpointsApiExplorer();
@@ -133,6 +134,7 @@ public class Program
 
         app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));
         app.Services.AddTransient<IJWTHelper, JWTHelper>();
+        app.Services.AddTransient<IdentityHelper>();
         app.Services.AddTransient<ClaimManager>(sp => new ClaimManager(sp.GetService<IHttpContextAccessor>()));
 
         app.Services.AddScoped<IUnitOfWork>(sp => new UnitOfWork(sp));

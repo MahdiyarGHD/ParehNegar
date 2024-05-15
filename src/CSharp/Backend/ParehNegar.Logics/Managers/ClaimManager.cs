@@ -45,7 +45,15 @@ public class ClaimManager
             return claims.FirstOrDefault(x => x.Type == "CurrentLanguage")?.Value;
         }
     }
-
+    
+    public List<string> Role
+    {
+        get
+        {
+            return claims.Where(x => x.Type == ClaimTypes.Role).Select(x => x.Value).ToList();
+        }
+    }
+    
     public List<ClaimContract> SetCurrentLanguage(string value, List<ClaimContract> claims = default)
     {
         claims ??= [];
@@ -69,6 +77,21 @@ public class ClaimManager
                 Value = value.Value.ToString()
             });
 
+        return claims;
+    }
+    
+    public List<ClaimContract> SetRole(ICollection<ClaimContract> roles, List<ClaimContract> claims = default)
+    {
+        claims ??= new List<ClaimContract>();
+        if (roles.HasAny())
+            foreach (ClaimContract role in roles)
+            {
+                claims.Add(new ClaimContract
+                {
+                    Name = role.Name,
+                    Value = role.Value.ToString()
+                });
+            }
         return claims;
     }
 }

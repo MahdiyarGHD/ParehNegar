@@ -117,26 +117,26 @@ public class BaseUnitOfWork : IBaseUnitOfWork
         where TEntity : class, IIdSchema<TId>
     {
             return GetInternalLogic<TEntity, TId>();
-        }
+    }
 
     Logic<TEntity, TId> GetInternalLogic<TEntity, TId>()
         where TId : new()
         where TEntity : class, IIdSchema<TId>
     {
             return AddDisposable(new Logic<TEntity, TId>(GetService<DbContext>()));
-        }
+    }
 
 
     public IConfiguration GetConfiguration()
     {
             return ServiceProvider.GetService<IConfiguration>();
-        }
+    }
 
     public virtual string GetValue(string key)
     {
             IConfiguration config = GetService<IConfiguration>();
             return (key.IsNullOrEmpty() || config == null) ? null : config.GetValue<string>(key);
-        }
+    }
 
     public virtual IMapperProvider GetMapper()
     {
@@ -157,16 +157,15 @@ public class BaseUnitOfWork : IBaseUnitOfWork
                 }
             }
             return mapper;
-        }
+    }
 
     public virtual DbContext GetDbContext()
     {
             return GetService<DbContext>();
-        }
+    }
 
     public ITextSerializationProvider GetTextSerialization()
     {
             return GetService<ITextSerializationProvider>();
-
-        }
+    }
 }

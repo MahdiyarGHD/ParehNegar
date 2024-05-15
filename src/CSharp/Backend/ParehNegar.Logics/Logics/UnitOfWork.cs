@@ -25,4 +25,9 @@ public class UnitOfWork(IServiceProvider service) : BaseUnitOfWork(service), IUn
     {
         return GetService<IJWTHelper>();
     }
+    
+    public IdentityHelper GetIdentityHelper()
+    {
+        return GetService<IdentityHelper>();
+    }
 }

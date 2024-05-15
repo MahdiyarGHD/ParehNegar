@@ -3,6 +3,9 @@ using EasyMicroservices.ServiceContracts.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
 using System.Text.Json;
+using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
+using ParehNegar.Domain.Contracts.Authentications;
+using ParehNegar.Logics.Logics;
 
 namespace ParehNegar.WebApi.Middlewares;
 
@@ -17,7 +20,7 @@ public class AppAuthorizationMiddleware
     public AppAuthorizationMiddleware(RequestDelegate next)
     {
             _next = next;
-        }
+    }
 
     //
     // Parameters:
@@ -28,23 +31,8 @@ public class AppAuthorizationMiddleware
     {
             try
             {
-                //IAuthorization authorization = baseUnitOfWork.GetAuthorization();
-                //if (authorization != null)
-                //{
-                //    MessageContract messageContract = await authorization.CheckIsAuthorized(httpContext);
-                //    if (!messageContract)
-                //    {
-                //        httpContext.Response.ContentType = "application/json";
-                //        httpContext.Response.StatusCode = 200;
-                //        messageContract.Error.ServiceDetails.MethodName = httpContext.Request.Path.ToString();
-                //        string text = JsonSerializer.Serialize(messageContract);
-                //        await httpContext.Response.WriteAsync(text);
-                //        return;
-                //    }
-                //}
-
                 await _next(httpContext);
-                if (httpContext.Response.StatusCode == 401 || httpContext.Response.StatusCode == 403)
+                if (httpContext.Response.StatusCode is 401 or 403)
                 {
                     httpContext.Response.ContentType = "application/json";
                     httpContext.Response.StatusCode = 200;
@@ -101,7 +89,7 @@ public class AppAuthorizationMiddleware
                 messageContract = exception;
             }
 
-            if (exception.Message.Contains("Authenti", StringComparison.OrdinalIgnoreCase) && messageContract.Error.FailedReasonType != FailedReasonType.AccessDenied)
+            if (exception.Message.Contains("Authentication", StringComparison.OrdinalIgnoreCase) && messageContract.Error.FailedReasonType != FailedReasonType.AccessDenied)
             {
                 messageContract.Error.FailedReasonType = FailedReasonType.SessionAccessDenied;
             }

@@ -14,4 +14,5 @@ public interface IUnitOfWork : IBaseUnitOfWork
     public ContentHelper GetContentHelper();
     public ClaimManager GetClaimManager();
     public IJWTHelper GetJWTHelper();
+    public IdentityHelper GetIdentityHelper();
 }
