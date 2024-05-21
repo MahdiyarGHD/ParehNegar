@@ -114,17 +114,21 @@ public class AuthenticationController(IUnitOfWork unitOfWork) : ControllerBase
         };
     }
     
-    [HttpGet]
-    [AppInitCheck]
-    public MessageContract<string> CheckAppInitWorksOrNot()
-    {
-        return "Yeassshh it's working and you initialized the app!";
-    }
-    
-    [HttpGet]
+    [HttpPost]
     [CustomAuthorizeCheck]
-    public MessageContract<string> CheckAuthCheckWorksOrNot()
+    public async Task<MessageContract<TokenResponseContract>> Logout()
     {
-        return "Yeassshh it's working and you are already logined.";
+        List<ClaimContract> claims = [];
+        
+        var claimManager = unitOfWork.GetClaimManager();
+        claimManager.SetCurrentLanguage(claimManager.CurrentLanguage, claims);
+        
+        var tokenResponse = await unitOfWork.GetJWTHelper().GenerateTokenWithClaims(claims);
+        SetCookie("token", tokenResponse.Result.Token);
+
+        return new TokenResponseContract
+        {
+            Token = tokenResponse.Result.Token
+        };
     }
 }
