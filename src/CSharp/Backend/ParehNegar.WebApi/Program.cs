@@ -34,6 +34,8 @@ public class Program
         var app = CreateBuilder(args, configuration);
 
         WebApplication webApplication = app.Build();
+        webApplication.UseMiddleware<AppAuthorizationMiddleware>();
+
         webApplication.UseCors(delegate (CorsPolicyBuilder options)
         {
             List<string> anyCors = configuration.GetSection("Cors:Any")?.Get<List<string>>();
@@ -46,11 +48,10 @@ public class Program
         });
 
         webApplication.UseExceptionHandler();
-
-        webApplication.UseMiddleware<TokenFromCookieMiddleware>(); 
+        
+        webApplication.UseMiddleware<TokenFromCookieMiddleware>();
         webApplication.UseAuthentication();
-        webApplication.UseMiddleware<AppAuthorizationMiddleware>(); 
-        webApplication.UseAuthorization(); 
+        webApplication.UseAuthorization();
 
         webApplication.MapControllers();
 
@@ -60,7 +61,6 @@ public class Program
         DbContext context = webApplication.Services.GetService<DbContext>();
         if (context.Database.IsInMemory())
             await context.Database.EnsureCreatedAsync();
-
 
         await webApplication.RunAsync();
     }

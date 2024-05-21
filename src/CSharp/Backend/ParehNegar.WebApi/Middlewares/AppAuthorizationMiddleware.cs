@@ -2,9 +2,11 @@
 using EasyMicroservices.ServiceContracts.Exceptions;
 using Microsoft.AspNetCore.Diagnostics;
 using System.Net;
+using System.Text;
 using System.Text.Json;
 using Microsoft.AspNetCore.DataProtection.KeyManagement.Internal;
 using ParehNegar.Domain.Contracts.Authentications;
+using ParehNegar.Logics.Attributes;
 using ParehNegar.Logics.Logics;
 
 namespace ParehNegar.WebApi.Middlewares;
@@ -29,45 +31,75 @@ public class AppAuthorizationMiddleware
     //   baseUnitOfWork:
     public async Task Invoke(HttpContext httpContext)
     {
-            try
+        var originalBodyStream = httpContext.Response.Body;
+        using var responseBody = new MemoryStream();
+        httpContext.Response.Body = responseBody;
+
+        bool isAccessDenied = false;
+
+        try
+        {
+            await _next(httpContext);
+
+            var endpoint = httpContext.GetEndpoint();
+            var authAttribute = endpoint?.Metadata.GetMetadata<CustomAuthorizeCheckAttribute>();
+
+            if (authAttribute != null)
             {
-                await _next(httpContext);
-                if (httpContext.Response.StatusCode is 401 or 403)
-                {
-                    httpContext.Response.ContentType = "application/json";
-                    httpContext.Response.StatusCode = 200;
-                    MessageContract messageContract2 = FailedReasonType.SessionAccessDenied;
-                    messageContract2.Error.ServiceDetails.MethodName = httpContext.Request.Path.ToString();
-                    messageContract2.Error.Details = $"StatusCode: {httpContext.Response.StatusCode}";
-                    string text2 = JsonSerializer.Serialize(messageContract2);
-                    await httpContext.Response.WriteAsync(text2);
-                }
-                else if (httpContext.Response.StatusCode == 204)
-                {
-                    httpContext.Response.ContentType = "application/json";
-                    httpContext.Response.StatusCode = 200;
-                    MessageContract messageContract3 = FailedReasonType.Nothing;
-                    messageContract3.Error.Message = "Do not send null value to the service response! always send me a MessageContract";
-                    messageContract3.Error.ServiceDetails.MethodName = httpContext.Request.Path.ToString();
-                    string text3 = JsonSerializer.Serialize(messageContract3);
-                    await httpContext.Response.WriteAsync(text3);
-                }
+                var claimTypes = authAttribute.ClaimTypes;
+                var user = httpContext.User;
+
+                if (user.Identity is { IsAuthenticated: false } || !claimTypes.All(claimType => user.Claims.Any(claim => claim.Type == claimType)))
+                    isAccessDenied = true;
             }
-            catch (Exception exception)
+
+            if (httpContext.Response.StatusCode is 401 or 403 || isAccessDenied)
             {
-                await ExceptionHandler(httpContext, exception);
+                MessageContract messageContract = FailedReasonType.SessionAccessDenied;
+                messageContract.Error.ServiceDetails.MethodName = httpContext.Request.Path.ToString();
+                messageContract.Error.Details = $"Session access denied!";
+                await WriteResponse(httpContext, messageContract, 200, originalBodyStream);
+            }
+            else if (httpContext.Response.StatusCode == 204)
+            {
+                MessageContract messageContract = FailedReasonType.Nothing;
+                messageContract.Error.Message = "Do not send null value to the service response! always send me a MessageContract";
+                messageContract.Error.ServiceDetails.MethodName = httpContext.Request.Path.ToString();
+                await WriteResponse(httpContext, messageContract, 200, originalBodyStream);
+            }
+            else
+            {
+                responseBody.Seek(0, SeekOrigin.Begin);
+                await responseBody.CopyToAsync(originalBodyStream);
             }
         }
+        catch (Exception exception)
+        {
+            await ExceptionHandler(httpContext, exception);
+        }
+        finally
+        {
+            httpContext.Response.Body = originalBodyStream;
+        }
+    }
 
-    //
-    // Parameters:
-    //   context:
+    private async Task WriteResponse(HttpContext httpContext, MessageContract messageContract, int statusCode, Stream originalBodyStream)
+    {
+        httpContext.Response.ContentType = "application/json";
+        httpContext.Response.StatusCode = statusCode;
+        string responseText = JsonSerializer.Serialize(messageContract);
+
+        var responseBytes = Encoding.UTF8.GetBytes(responseText);
+        await originalBodyStream.WriteAsync(responseBytes, 0, responseBytes.Length);
+        await originalBodyStream.FlushAsync(); 
+    }
+    
     internal static Task ExceptionHandler(HttpContext context)
     {
-            Exception exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
-            return ExceptionHandler(context, exception);
-        }
-
+        Exception exception = context.Features.Get<IExceptionHandlerFeature>()?.Error;
+        return ExceptionHandler(context, exception);
+    }
+    
     //
     // Parameters:
     //   context:
